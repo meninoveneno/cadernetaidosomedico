@@ -5,15 +5,14 @@
   "display": "standalone",
   "background_color": "#4D6057",
   "theme_color": "#4D6057",
-  "description": "Aplicativo de acesso médico para a Caderneta Virtual do Idoso",
   "icons": [
     {
-      "src": "https://i.imgur.com/BzIGz3X.png",
+      "src": "https://i.imgur.com/z8sFZHC.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://i.imgur.com/BzIGz3X.png",
+      "src": "https://i.imgur.com/z8sFZHC.png",
       "sizes": "512x512",
       "type": "image/png"
     }
