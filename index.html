@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#4D6057">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/manifest.json">
+  <title>Acesso Médico - Caderneta Idoso</title>
+  <link rel="icon" type="image/png" href="https://i.imgur.com/BzIGz3X.png">
+  <link rel="apple-touch-icon" href="https://i.imgur.com/BzIGz3X.png">
+  <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-storage-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      border-radius: 12px;
+      position: relative;
+    }
+    
+    .btn {
+      margin-top: 20px;
+      padding: 12px 20px;
+      border: none;
+      background: #3b5448;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background-color 0.3s;
+      width: 100%;
+      max-width: 200px;
+    }
+    
+    .btn:hover {
+      background-color: #2d4036;
+    }
+    
+    .popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #3b5448;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      opacity: 0;
+      transition: opacity 0.5s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .popup.show {
+      opacity: 1;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .medical-search {
+      width: 80%;
+      max-width: 400px;
+      padding: 10px;
+      margin: 10px auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      display: block;
+    }
+    
+    .user-list {
+      max-height: 400px;
+      overflow-y: auto;
+      margin: 15px auto;
+      width: 90%;
+      max-width: 600px;
+      text-align: left;
+    }
+    
+    .user-item {
+      padding: 15px;
+      margin: 10px 0;
+      background: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: left;
+    }
+    
+    .user-item:hover {
+      background: #e9ecef;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .user-name {
+      font-weight: 600;
+      font-size: 1.1em;
+      margin-bottom: 5px;
+    }
+    
+    .user-details {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9em;
+      color: #666;
+    }
+    
+    .medical-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .no-users {
+      text-align: center;
+      color: #666;
+      padding: 20px;
+    }
+    
+    #userDetailTabs {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 5px;
+      margin-bottom: 20px;
+    }
+    
+    .detail-tab {
+      padding: 12px;
+      text-align: center;
+      background: #e9ecef;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+    
+    .detail-tab.active {
+      background: #839c90;
+      color: white;
+    }
+    
+    .detail-tab-content {
+      display: none;
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      text-align: left;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .detail-tab-content.active {
+      display: block;
+      z-index: 2;
+    }
+    
+    .compact-form {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      text-align: left;
+    }
+    
+    .scrollable-detail {
+      max-height: 60vh;
+      overflow-y: auto;
+      padding-right: 10px;
+      text-align: left;
+    }
+    
+    .detail-tab-content#detail-monitoramento {
+      background-color: #fff9c4;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: left;
+    }
+    
+    .monitoramento-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      margin: 5px 0;
+      background-color: white;
+      border-radius: 8px;
+      text-align: left;
+    }
+    
+    .delete-monitoramento-btn {
+      background: #ff4444;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
+    #qrCodeScreen input {
+      width: 80%;
+      max-width: 400px;
+      padding: 10px;
+      margin: 10px auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      display: block;
+    }
+    
+    #qrCodeScreen label {
+      display: block;
+      margin-top: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #495057;
+      text-align: left;
+    }
+    
+    #qrCodeContainer {
+      text-align: center;
+      margin: 20px 0;
+      display: none;
+    }
+    
+    .btn-danger {
+      background-color: #dc3545;
+    }
+    
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+    
+    .add-item-btn {
+      margin: 10px 0;
+      background: #4D6057;
+    }
+    
+    .exames-container {
+      margin-top: 20px;
+      border: 1px solid #e9ecef;
+      padding: 20px;
+      border-radius: 8px;
+      background-color: #f8f9fa;
+    }
+    
+    .exames-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    
+    .exames-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #4D6057;
+      margin: 0;
+    }
+    
+    .exames-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .exame-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      margin: 10px 0;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    
+    .exame-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .exame-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex: 1;
+    }
+    
+    .exame-thumbnail {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+    }
+    
+    .exame-details {
+      flex: 1;
+    }
+    
+    .exame-name {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .exame-date {
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .exame-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .exame-action-btn {
+      background: none;
+      border: none;
+      color: #4D6057;
+      cursor: pointer;
+      font-size: 16px;
+      transition: color 0.2s;
+    }
+    
+    .exame-action-btn:hover {
+      color: #3b5448;
+    }
+    
+    #examePreviewModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    #examePreviewImage {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 4px;
+    }
+    
+    #closePreviewBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+    }
+    
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .action-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .action-btn i {
+      font-size: 16px;
+    }
+    
+    .btn-primary {
+      background-color: #4D6057;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: #3b5448;
+    }
+    
+    .btn-secondary {
+      background-color: #839c90;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #6d8a7d;
+    }
+    
+    .btn-warning {
+      background-color: #ffc107;
+      color: #333;
+    }
+    
+    .btn-warning:hover {
+      background-color: #e0a800;
+    }
+    
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+    
+    .exam-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      z-index: 1000;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: none;
+    }
+    
+    .exam-modal h3 {
+      margin-top: 0;
+      color: #4D6057;
+      text-align: center;
+    }
+    
+    .exam-modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .exam-modal-actions .action-btn {
+      flex: 1;
+    }
+    
+    /* Estilos para a câmera */
+    .camera-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1001;
+    }
+    
+    #cameraVideo {
+      width: 100%;
+      max-width: 500px;
+      background: black;
+    }
+    
+    .camera-controls {
+      position: fixed;
+      bottom: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      z-index: 1002;
+    }
+    
+    .camera-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #captureBtn {
+      background: #fff;
+      color: #333;
+    }
+    
+    #closeCameraBtn {
+      background: #dc3545;
+    }
+    
+    #flipCameraBtn {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    #cameraCanvas {
+      display: none;
+    }
+    
+    .exam-name-dialog {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      z-index: 1003;
+      width: 90%;
+      max-width: 400px;
+      display: none;
+    }
+    
+    .exam-name-dialog h3 {
+      margin-top: 0;
+      color: #4D6057;
+    }
+    
+    .exam-name-dialog input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    .exam-name-dialog-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    /* Estilos para o modal de prévia da foto */
+    #photoPreviewModal {
+      z-index: 1002;
+    }
+    
+    #photoPreviewModal img {
+      max-height: 50vh;
+      border-radius: 8px;
+      border: 2px solid #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    @media (max-width: 600px) {
+      .exame-info {
+        gap: 10px;
+      }
+      
+      .exame-thumbnail {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .action-btn {
+        width: 100%;
+      }
+      
+      #userDetailTabs {
+        grid-template-columns: 1fr;
+      }
+      
+      .detail-tab {
+        font-size: 13px;
+        padding: 10px;
+      }
+      
+      .compact-form {
+        grid-template-columns: 1fr;
+      }
+      
+      .user-details {
+        flex-direction: column;
+      }
+      
+      .medical-search {
+        width: 90%;
+      }
+    }
+    
+    #medicalLoginScreen h2,
+    #medicalAccessScreen h2,
+    #qrCodeScreen h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #qrCodeScreen form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #qrCodeScreen label {
+      text-align: center;
+      width: 100%;
+    }
+
+    #qrCodeScreen input {
+      text-align: center;
+    }
+
+    #medicalLoginScreen,
+    #medicalAccessScreen,
+    #qrCodeScreen {
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <!-- Tela de Login Médico -->
+  <div id="medicalLoginScreen" class="container">
+    <h2>Acesso Médico</h2>
+    <input type="text" id="medUsername" placeholder="Usuário" class="medical-search">
+    <input type="password" id="medPassword" placeholder="Senha" class="medical-search">
+    <div class="medical-buttons">
+      <button id="medLoginBtn" class="btn">Entrar</button>
+    </div>
+  </div>
+
+  <!-- Tela de Acesso Médico -->
+  <div id="medicalAccessScreen" class="container" style="display: none;">
+    <h2>Acesso Médico</h2>
+    <input type="text" id="userSearch" placeholder="Pesquisar usuários..." class="medical-search">
+    <div class="user-list" id="userList"></div>
+    <div class="medical-buttons">
+      <button id="generateQrBtn" class="btn">Gerar QR CODE</button>
+      <button id="medLogoutBtn" class="btn">Sair</button>
+    </div>
+  </div>
+
+  <!-- Tela de Geração de QR Code -->
+  <div id="qrCodeScreen" class="container" style="display: none;">
+    <h2>Gerar Novo Registro</h2>
+    <form id="qrCodeForm">
+      <label for="qrNome">Nome do Paciente:</label>
+      <input type="text" id="qrNome" required>
+      
+      <label for="qrNascimento">Data de Nascimento:</label>
+      <input type="date" id="qrNascimento" required>
+      
+      <div id="qrCodeContainer">
+        <canvas id="qrCanvas"></canvas>
+        <p style="margin-top: 10px;">Escaneie este QR code para cadastrar automaticamente</p>
+      </div>
+      
+      <div class="medical-buttons">
+        <button type="button" id="generateQrCodeBtn" class="btn">Gerar QR</button>
+        <button type="button" id="closeQrBtn" class="btn">Fechar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tela de Detalhes do Paciente -->
+  <div id="userDetailScreen" class="container" style="display: none;">
+    <h2>Detalhes do Paciente</h2>
+    <div id="userDetailTabs">
+      <div class="detail-tab active" data-tab="detail-identificacao">Identificação</div>
+      <div class="detail-tab" data-tab="detail-vacinacao">Vacinação</div>
+      <div class="detail-tab" data-tab="detail-doencas">Doenças</div>
+      <div class="detail-tab" data-tab="detail-medicamentos">Medicamentos</div>
+      <div class="detail-tab" data-tab="detail-anotacoes">Anotações</div>
+      <div class="detail-tab" data-tab="detail-monitoramento">Monitoramento</div>
+      <div class="detail-tab" data-tab="detail-exames">Exames</div>
+    </div>
+    
+    <div class="scrollable-detail">
+      <div id="userDetailContent"></div>
+    </div>
+
+    <div class="medical-buttons">
+      <button id="editUserBtn" class="btn" onclick="toggleEditMode()">Editar</button>
+      <button id="saveUserBtn" class="btn" style="display: none;" onclick="saveUserChanges()">Salvar</button>
+      <button class="btn btn-danger" onclick="deleteUser()">Excluir Usuário</button>
+      <button onclick="closeUserDetail()" class="btn">Voltar</button>
+    </div>
+  </div>
+
+  <!-- Modal para visualização de exames -->
+  <div id="examePreviewModal">
+    <button id="closePreviewBtn"><i class="fas fa-times"></i></button>
+    <img id="examePreviewImage" src="" alt="Visualização do Exame">
+  </div>
+  
+  <!-- Modal para upload/tirar foto de exames -->
+  <div id="examModal" class="exam-modal">
+    <h3>Adicionar Exame</h3>
+    <p>Escolha como deseja adicionar o exame:</p>
+    <div class="exam-modal-actions">
+      <button id="takePhotoBtn" class="action-btn btn-primary">
+        <i class="fas fa-camera"></i> Tirar Foto
+      </button>
+      <button id="uploadPhotoBtn" class="action-btn btn-secondary">
+        <i class="fas fa-upload"></i> Upload
+      </button>
+    </div>
+    <button id="closeExamModalBtn" class="action-btn btn-danger" style="margin-top: 10px;">
+      <i class="fas fa-times"></i> Cancelar
+    </button>
+  </div>
+
+  <!-- Modal de Prévia da Foto -->
+  <div id="photoPreviewModal" class="exam-modal" style="display: none;">
+    <h3>Prévia do Exame</h3>
+    <img id="previewImage" src="" alt="Prévia do Exame" style="max-width: 100%; margin: 15px 0;">
+    <div class="exam-modal-actions">
+      <button id="retakePhotoBtn" class="action-btn btn-danger">
+        <i class="fas fa-sync-alt"></i> Tirar Novamente
+      </button>
+      <button id="confirmPhotoBtn" class="action-btn btn-primary">
+        <i class="fas fa-check"></i> Confirmar
+      </button>
+    </div>
+  </div>
+
+  <!-- Input oculto para upload de arquivos -->
+  <input type="file" id="examFileInput" accept="image/*" style="display: none;">
+
+  <!-- Elementos da câmera para exames -->
+  <div class="camera-container" id="cameraContainer">
+    <video id="cameraVideo" autoplay playsinline></video>
+    <canvas id="cameraCanvas"></canvas>
+    
+    <div class="camera-controls">
+      <button id="closeCameraBtn" class="camera-btn">
+        <i class="fas fa-times"></i>
+      </button>
+      <button id="captureBtn" class="camera-btn">
+        <i class="fas fa-camera"></i>
+      </button>
+      <button id="flipCameraBtn" class="camera-btn">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="exam-name-dialog" id="examNameDialog">
+    <h3>Nome do Exame</h3>
+    <input type="text" id="examNameInput" placeholder="Digite o nome do exame">
+    <div class="exam-name-dialog-buttons">
+      <button id="cancelExamNameBtn" class="btn btn-danger">Cancelar</button>
+      <button id="saveExamNameBtn" class="btn">Salvar</button>
+    </div>
+  </div>
+
+  <div id="popup" class="popup"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCMP_bBotEMngO0pLkxhrZvvgCJqIFTZCY",
+      authDomain: "cadernetavirtualdoidoso.firebaseapp.com",
+      projectId: "cadernetavirtualdoidoso",
+      storageBucket: "cadernetavirtualdoidoso.appspot.com",
+      messagingSenderId: "374078415962",
+      appId: "1:374078415962:web:8d8566388ee8336f986463"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Variáveis globais
+    let currentDetailTab = 'detail-identificacao';
+    let userDetailUnsubscribe = null;
+    let medicalAccessUnsubscribe = null;
+    let currentEditingUser = null;
+    let isEditing = false;
+    let currentUserData = null;
+    let examesUnsubscribe = null;
+    let cameraStream = null;
+    let usingFrontCamera = false;
+    let capturedPhotoUrl = null;
+
+    // Função para formatar data
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+    }
+
+    // Função para mostrar popup
+    function showPopup(message, isError = false) {
+      const popup = document.getElementById('popup');
+      popup.textContent = message;
+      popup.style.backgroundColor = isError ? '#dc3545' : '#3b5448';
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 3000);
+    }
+
+    // Função para carregar exames do usuário
+    async function loadUserExames(username) {
+      try {
+        const examesRef = db.collection('exames').where('pacienteId', '==', username);
+        const querySnapshot = await examesRef.get();
+        
+        const examesContainer = document.createElement('div');
+        examesContainer.className = 'exames-container';
+        
+        if (querySnapshot.empty) {
+          examesContainer.innerHTML = '<p style="text-align: center; color: #666;">Nenhum exame cadastrado para este paciente.</p>';
+        } else {
+          const exames = [];
+          querySnapshot.forEach(doc => {
+            exames.push({ id: doc.id, ...doc.data() });
+          });
+          
+          // Ordena por data (mais recente primeiro)
+          exames.sort((a, b) => new Date(b.data) - new Date(a.data));
+          
+          exames.forEach(exame => {
+            const exameItem = document.createElement('div');
+            exameItem.className = 'exame-item';
+            exameItem.innerHTML = `
+              <div class="exame-info">
+                <img src="${exame.url}" alt="Exame" class="exame-thumbnail" 
+                     onclick="showExamePreview('${exame.url}')">
+                <div class="exame-details">
+                  <div class="exame-name">${exame.descricao || 'Exame médico'}</div>
+                  <div class="exame-date">${formatDate(exame.data)}</div>
+                </div>
+              </div>
+              <div class="exame-actions">
+                <button class="exame-action-btn" onclick="deleteExame('${exame.id}')" title="Excluir exame">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            `;
+            examesContainer.appendChild(exameItem);
+          });
+        }
+        
+        const detailContent = document.getElementById('userDetailContent');
+        let examesTab = document.getElementById('detail-exames');
+        
+        if (!examesTab) {
+          examesTab = document.createElement('div');
+          examesTab.className = 'detail-tab-content';
+          examesTab.id = 'detail-exames';
+          detailContent.appendChild(examesTab);
+        }
+        
+        examesTab.innerHTML = '';
+        examesTab.appendChild(examesContainer);
+        
+      } catch (error) {
+        console.error('Erro ao carregar exames:', error);
+        showPopup('Erro ao carregar exames do paciente!', true);
+      }
+    }
+
+    // Função para mostrar prévia do exame
+    function showExamePreview(imageUrl) {
+      const modal = document.getElementById('examePreviewModal');
+      const img = document.getElementById('examePreviewImage');
+      img.src = imageUrl;
+      modal.style.display = 'flex';
+      
+      document.getElementById('closePreviewBtn').onclick = () => {
+        modal.style.display = 'none';
+      };
+    }
+
+    // Função para excluir exame
+    async function deleteExame(exameId) {
+      if(!confirm('Tem certeza que deseja excluir este exame permanentemente?')) return;
+      
+      try {
+        await db.collection('exames').doc(exameId).delete();
+        showPopup('Exame excluído com sucesso!');
+        
+        // Atualiza a lista de exames na tela de detalhes do médico
+        if (document.getElementById('userDetailScreen').style.display === 'block') {
+          loadUserExames(currentEditingUser);
+        }
+      } catch (error) {
+        console.error('Erro ao excluir exame:', error);
+        showPopup('Erro ao excluir exame!', true);
+      }
+    }
+
+    // Função para abrir modal de exames
+    function openExamModal() {
+      document.getElementById('examModal').style.display = 'block';
+    }
+
+    // Função para fechar modal de exames
+    function closeExamModal() {
+      document.getElementById('examModal').style.display = 'none';
+    }
+
+    // Função para iniciar a câmera
+    async function startCamera(facingMode = 'environment') {
+      try {
+        stopCamera(); // Para qualquer stream existente
+        
+        const constraints = {
+          video: { 
+            facingMode: facingMode,
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        };
+        
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        const video = document.getElementById('cameraVideo');
+        
+        video.srcObject = stream;
+        cameraStream = stream;
+        document.getElementById('cameraContainer').style.display = 'flex';
+        
+        video.onloadedmetadata = () => {
+          video.play();
+        };
+        
+      } catch (error) {
+        console.error('Erro ao acessar câmera:', error);
+        showPopup('Não foi possível acessar a câmera. Verifique as permissões.', true);
+      }
+    }
+    
+    // Função para parar a câmera
+    function stopCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+      document.getElementById('cameraContainer').style.display = 'none';
+    }
+    
+    // Função para capturar foto
+    function capturePhoto() {
+      const video = document.getElementById('cameraVideo');
+      const canvas = document.getElementById('cameraCanvas');
+      const context = canvas.getContext('2d');
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      capturedPhotoUrl = canvas.toDataURL('image/jpeg', 0.8);
+      showPhotoPreview(capturedPhotoUrl);
+    }
+    
+    // Função para mostrar prévia da foto
+    function showPhotoPreview(imageUrl) {
+      const previewModal = document.getElementById('photoPreviewModal');
+      const previewImage = document.getElementById('previewImage');
+      previewImage.src = imageUrl;
+      previewModal.style.display = 'block';
+    }
+    
+    // Função para confirmar foto
+    function confirmPhoto() {
+      document.getElementById('photoPreviewModal').style.display = 'none';
+      document.getElementById('examNameDialog').style.display = 'block';
+      document.getElementById('examNameInput').focus();
+    }
+    
+    // Função para tirar foto novamente
+    function retakePhoto() {
+      document.getElementById('photoPreviewModal').style.display = 'none';
+      startCamera(usingFrontCamera ? 'user' : 'environment');
+    }
+    
+    // Função para alternar entre câmeras
+    function flipCamera() {
+      usingFrontCamera = !usingFrontCamera;
+      startCamera(usingFrontCamera ? 'user' : 'environment');
+    }
+
+    // Função para tirar foto do exame
+    async function takeExamPhoto() {
+      closeExamModal();
+      startCamera('environment'); // Usa a câmera traseira por padrão
+    }
+
+    // Função para lidar com upload de arquivo
+    async function handleFileUpload(event) {
+      closeExamModal();
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const description = prompt('Descreva o exame (opcional):');
+        uploadExamToFirebase(e.target.result, description);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Função para enviar exame para o Firebase
+    async function uploadExamToFirebase(imageData, description) {
+      const username = currentEditingUser;
+      if (!username) {
+        showPopup('Nenhum usuário selecionado!', true);
+        return;
+      }
+      
+      try {
+        showPopup('Salvando exame...');
+        
+        const timestamp = new Date().toISOString();
+        
+        // Salva no Firestore
+        await db.collection('exames').add({
+          pacienteId: username,
+          url: imageData,
+          descricao: description || '',
+          data: timestamp
+        });
+        
+        showPopup('Exame salvo com sucesso!');
+        
+        // Atualiza a lista de exames na tela de detalhes
+        loadUserExames(username);
+        
+      } catch (error) {
+        console.error('Erro ao salvar exame:', error);
+        showPopup('Erro ao salvar exame!', true);
+      }
+    }
+
+    // Event listeners para os controles da câmera
+    document.getElementById('captureBtn').addEventListener('click', capturePhoto);
+    document.getElementById('closeCameraBtn').addEventListener('click', stopCamera);
+    document.getElementById('flipCameraBtn').addEventListener('click', flipCamera);
+    
+    // Event listeners para o diálogo de nome do exame
+    document.getElementById('cancelExamNameBtn').addEventListener('click', () => {
+      document.getElementById('examNameDialog').style.display = 'none';
+      capturedPhotoUrl = null;
+    });
+    
+    document.getElementById('saveExamNameBtn').addEventListener('click', async () => {
+      const examName = document.getElementById('examNameInput').value.trim();
+      if (!examName) {
+        alert('Por favor, digite um nome para o exame');
+        return;
+      }
+      
+      document.getElementById('examNameDialog').style.display = 'none';
+      document.getElementById('examNameInput').value = '';
+      
+      if (capturedPhotoUrl) {
+        try {
+          const username = currentEditingUser;
+          if (!username) {
+            showPopup('Nenhum usuário selecionado!', true);
+            return;
+          }
+          
+          showPopup('Salvando exame...');
+          
+          const timestamp = new Date().toISOString();
+          
+          // Salva no Firestore
+          await db.collection('exames').add({
+            pacienteId: username,
+            url: capturedPhotoUrl,
+            descricao: examName,
+            data: timestamp
+          });
+          
+          showPopup('Exame salvo com sucesso!');
+          
+          // Atualiza a lista de exames
+          loadUserExames(username);
+          
+          capturedPhotoUrl = null;
+          stopCamera();
+        } catch (error) {
+          console.error('Erro ao salvar exame:', error);
+          showPopup('Erro ao salvar exame!', true);
+        }
+      }
+    });
+
+    // Event listeners para o modal de prévia da foto
+    document.getElementById('retakePhotoBtn').addEventListener('click', retakePhoto);
+    document.getElementById('confirmPhotoBtn').addEventListener('click', confirmPhoto);
+
+    // Event listener para o botão de login médico
+    document.getElementById('medLoginBtn').addEventListener('click', () => {
+      const username = document.getElementById('medUsername').value;
+      const password = document.getElementById('medPassword').value;
+      
+      if(username === 'admin' && password === 'admin123') {
+        document.getElementById('medicalLoginScreen').style.display = 'none';
+        loadMedicalAccess();
+      } else {
+        alert('Credenciais inválidas!');
+      }
+    });
+
+    // Função para carregar a tela de acesso médico
+    async function loadMedicalAccess() {
+      document.getElementById('medicalAccessScreen').style.display = 'block';
+      
+      if (medicalAccessUnsubscribe) {
+        medicalAccessUnsubscribe();
+      }
+      
+      medicalAccessUnsubscribe = db.collection('usuarios').onSnapshot(snapshot => {
+        const users = [];
+        snapshot.forEach(doc => {
+          const userData = doc.data();
+          users.push({ 
+            id: doc.id,
+            nome: userData.identificacao.nome,
+            dataNascimento: userData.identificacao.dataNascimento
+          });
+        });
+        
+        users.sort((a, b) => a.nome.localeCompare(b.nome));
+        
+        displayUsers(users);
+        
+        const searchInput = document.getElementById('userSearch');
+        searchInput.oninput = (e) => {
+          const term = e.target.value.toLowerCase();
+          const filtered = users.filter(user => 
+            user.nome.toLowerCase().includes(term) ||
+            user.id.toLowerCase().includes(term) ||
+            user.dataNascimento.includes(term)
+          );
+          displayUsers(filtered);
+        };
+      }, error => {
+        console.error('Erro na escuta em tempo real:', error);
+        showPopup('Erro ao carregar pacientes!', true);
+      });
+    }
+
+    // Função para exibir lista de usuários
+    function displayUsers(users) {
+      const userList = document.getElementById('userList');
+      
+      if (users.length === 0) {
+        userList.innerHTML = '<p class="no-users">Nenhum paciente encontrado</p>';
+        return;
+      }
+      
+      userList.innerHTML = users.map(user => `
+        <div class="user-item" onclick="showUserDetail('${user.id}')" data-patient-id="${user.id}">
+          <div class="user-name">${user.nome}</div>
+          <div class="user-details">
+            <span class="user-id">ID: ${user.id}</span>
+            <span class="user-birth">Nasc: ${user.dataNascimento}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Função para mostrar detalhes do usuário
+    async function showUserDetail(userId) {
+      currentEditingUser = userId;
+      if(userDetailUnsubscribe) userDetailUnsubscribe();
+      
+      try {
+        const doc = await db.collection('usuarios').doc(userId).get();
+        if(doc.exists) {
+          currentUserData = doc.data();
+          renderUserDetail(currentUserData);
+          document.getElementById('medicalAccessScreen').style.display = 'none';
+          document.getElementById('userDetailScreen').style.display = 'block';
+          
+          userDetailUnsubscribe = db.collection('usuarios').doc(userId).onSnapshot(doc => {
+            if(doc.exists) {
+              currentUserData = doc.data();
+              renderUserDetail(currentUserData);
+            }
+          });
+          
+          // Carrega os exames do paciente
+          loadUserExames(userId);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar detalhes:', error);
+        showPopup('Erro ao carregar dados do paciente!', true);
+      }
+    }
+
+    // Função para renderizar detalhes do usuário
+    function renderUserDetail(userData) {
+      const detailContent = document.getElementById('userDetailContent');
+      detailContent.innerHTML = `
+        <div class="detail-tab-content active" id="detail-identificacao">
+          <div class="compact-form">
+            <div class="form-row">
+              <label>Nome:</label>
+              ${isEditing ? 
+                `<input type="text" class="edit-input" data-field="identificacao.nome" value="${userData.identificacao.nome}">` : 
+                `<span>${userData.identificacao.nome}</span>`}
+            </div>
+            <div class="form-row">
+              <label>Nascimento:</label>
+              ${isEditing ? 
+                `<input type="date" class="edit-input" data-field="identificacao.dataNascimento" value="${userData.identificacao.dataNascimento}">` : 
+                `<span>${userData.identificacao.dataNascimento}</span>`}
+            </div>
+            <div class="form-row">
+              <label>Contato:</label>
+              ${isEditing ? 
+                `<input type="tel" class="edit-input" data-field="identificacao.contato" value="${userData.identificacao.contato}">` : 
+                `<span>${userData.identificacao.contato}</span>`}
+            </div>
+            <div class="form-row">
+              <label>Contato de Emergência:</label>
+              ${isEditing ? 
+                `<input type="tel" class="edit-input" data-field="identificacao.contatoEmergencia" value="${userData.identificacao.contatoEmergencia || ''}">` : 
+                `<span>${userData.identificacao.contatoEmergencia || 'Não informado'}</span>`}
+            </div>
+            <div class="form-row">
+              <label>Peso:</label>
+              ${isEditing ? 
+                `<input type="number" class="edit-input" data-field="identificacao.peso" value="${userData.identificacao.peso}">` : 
+                `<span>${userData.identificacao.peso}</span>`}
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-tab-content" id="detail-vacinacao">
+          ${userData.vacinacao.map((vacina, index) => `
+            <div class="vacina-form" data-index="${index}">
+              <div class="form-row">
+                <label>Vacina:</label>
+                ${isEditing ? 
+                  `<input type="text" class="edit-input" data-field="vacinacao[${index}].nomeVacina" value="${vacina.nomeVacina}">` : 
+                  `<span>${vacina.nomeVacina}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Data:</label>
+                ${isEditing ? 
+                  `<input type="date" class="edit-input" data-field="vacinacao[${index}].dataAplicacao" value="${vacina.dataAplicacao}">` : 
+                  `<span>${vacina.dataAplicacao}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Lote:</label>
+                ${isEditing ? 
+                  `<input type="text" class="edit-input" data-field="vacinacao[${index}].loteVacina" value="${vacina.loteVacina}">` : 
+                  `<span>${vacina.loteVacina}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Observações:</label>
+                ${isEditing ? 
+                  `<textarea class="edit-input" data-field="vacinacao[${index}].observacoes">${vacina.observacoes}</textarea>` : 
+                  `<span>${vacina.observacoes}</span>`}
+              </div>
+              ${isEditing ? `<button class="delete-btn" onclick="this.closest('.vacina-form').remove()">Excluir</button>` : ''}
+            </div>
+          `).join('')}
+          ${isEditing ? `<button class="btn add-item-btn" onclick="addNewVacina()">+ Nova Vacina</button>` : ''}
+        </div>
+
+        <div class="detail-tab-content" id="detail-doencas">
+          <div class="compact-form">
+            <div class="form-row">
+              <label>Hipertensão:</label>
+              <input type="checkbox" ${userData.doencas.hipertensao ? 'checked' : ''} 
+                ${isEditing ? 'data-field="doencas.hipertensao"' : 'disabled'}>
+            </div>
+            <div class="form-row">
+              <label>Diabetes:</label>
+              <input type="checkbox" ${userData.doencas.diabetes ? 'checked' : ''} 
+                ${isEditing ? 'data-field="doencas.diabetes"' : 'disabled'}>
+            </div>
+            <div class="form-row">
+              <label>Cardiopatias:</label>
+              <input type="checkbox" ${userData.doencas.cardiopatias ? 'checked' : ''} 
+                ${isEditing ? 'data-field="doencas.cardiopatias"' : 'disabled'}>
+            </div>
+            <div class="form-row">
+              <label>Chagas:</label>
+              <input type="checkbox" ${userData.doencas.chagas ? 'checked' : ''} 
+                ${isEditing ? 'data-field="doencas.chagas"' : 'disabled'}>
+            </div>
+            <div class="form-row">
+              <label>Outras:</label>
+              ${isEditing ? 
+                `<input type="text" class="edit-input" data-field="doencas.outras" value="${userData.doencas.outras || ''}">` : 
+                `<span>${userData.doencas.outras || 'Nenhuma'}</span>`}
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-tab-content" id="detail-medicamentos">
+          ${userData.medicamentos.map((med, index) => `
+            <div class="medicamento-form" data-index="${index}">
+              <div class="form-row">
+                <label>Medicamento:</label>
+                ${isEditing ? 
+                  `<input type="text" class="edit-input" data-field="medicamentos[${index}].nome" value="${med.nome}">` : 
+                  `<span>${med.nome}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Dose:</label>
+                ${isEditing ? 
+                  `<input type="text" class="edit-input" data-field="medicamentos[${index}].dose" value="${med.dose}">` : 
+                  `<span>${med.dose}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Posologia:</label>
+                ${isEditing ? 
+                  `<input type="text" class="edit-input" data-field="medicamentos[${index}].posologia" value="${med.posologia}">` : 
+                  `<span>${med.posologia}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Horário:</label>
+                ${isEditing ? 
+                  `<input type="time" class="edit-input" data-field="medicamentos[${index}].horario" value="${med.horario}">` : 
+                  `<span>${med.horario}</span>`}
+              </div>
+              ${isEditing ? `<button class="delete-btn" onclick="this.closest('.medicamento-form').remove()">Excluir</button>` : ''}
+            </div>
+          `).join('')}
+          ${isEditing ? `<button class="btn add-item-btn" onclick="addNewMedicamento()">+ Novo Medicamento</button>` : ''}
+        </div>
+
+        <div class="detail-tab-content" id="detail-anotacoes">
+          <div class="form-row">
+            ${isEditing ? 
+              `<textarea class="edit-input" data-field="anotacoes">${userData.anotacoes || ''}</textarea>` : 
+              `<span>${userData.anotacoes || 'Nenhuma anotação'}</span>`}
+          </div>
+        </div>
+
+        <div class="detail-tab-content" id="detail-monitoramento">
+          ${(userData.monitoramento || []).map((entry, index) => `
+            <div class="monitoramento-item">
+              <div>
+                <strong>PA:</strong> ${entry.pa}<br>
+                <strong>Glicemia:</strong> ${entry.glicemia}<br>
+                <em>${new Date(entry.timestamp).toLocaleString()}</em>
+              </div>
+              <button class="delete-monitoramento-btn" onclick="deleteMonitoramentoEntry('${currentEditingUser}', '${entry.timestamp}')">
+                Excluir
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      document.querySelectorAll('.detail-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
+          tab.classList.add('active');
+          const targetTab = tab.dataset.tab;
+          document.getElementById(targetTab).classList.add('active');
+          currentDetailTab = targetTab;
+          
+          // Carrega os exames quando a aba é clicada
+          if (targetTab === 'detail-exames') {
+            loadUserExames(currentEditingUser);
+          }
+        });
+      });
+
+      const activeTab = document.querySelector(`.detail-tab[data-tab="${currentDetailTab}"]`);
+      if(activeTab) {
+        activeTab.classList.add('active');
+        document.getElementById(currentDetailTab).classList.add('active');
+      }
+    }
+
+    // Função para adicionar novo medicamento
+    function addNewMedicamento() {
+      const container = document.querySelector('#detail-medicamentos');
+      const newIndex = container.querySelectorAll('.medicamento-form').length;
+      
+      const newMed = document.createElement('div');
+      newMed.className = 'medicamento-form';
+      newMed.innerHTML = `
+        <div class="form-row">
+          <label>Medicamento:</label>
+          <input type="text" class="edit-input" data-field="medicamentos[${newIndex}].nome">
+        </div>
+        <div class="form-row">
+          <label>Dose:</label>
+          <input type="text" class="edit-input" data-field="medicamentos[${newIndex}].dose">
+        </div>
+        <div class="form-row">
+          <label>Posologia:</label>
+          <input type="text" class="edit-input" data-field="medicamentos[${newIndex}].posologia">
+        </div>
+        <div class="form-row">
+          <label>Horário:</label>
+          <input type="time" class="edit-input" data-field="medicamentos[${newIndex}].horario">
+        </div>
+        <button class="delete-btn" onclick="this.closest('.medicamento-form').remove()">Excluir</button>
+      `;
+      container.insertBefore(newMed, container.lastElementChild);
+    }
+
+    // Função para adicionar nova vacina
+    function addNewVacina() {
+      const container = document.querySelector('#detail-vacinacao');
+      const newIndex = container.querySelectorAll('.vacina-form').length;
+      
+      const newVac = document.createElement('div');
+      newVac.className = 'vacina-form';
+      newVac.innerHTML = `
+        <div class="form-row">
+          <label>Vacina:</label>
+          <input type="text" class="edit-input" data-field="vacinacao[${newIndex}].nomeVacina">
+        </div>
+        <div class="form-row">
+          <label>Data:</label>
+          <input type="date" class="edit-input" data-field="vacinacao[${newIndex}].dataAplicacao">
+        </div>
+        <div class="form-row">
+          <label>Lote:</label>
+          <input type="text" class="edit-input" data-field="vacinacao[${newIndex}].loteVacina">
+        </div>
+        <div class="form-row">
+          <label>Observações:</label>
+          <textarea class="edit-input" data-field="vacinacao[${newIndex}].observacoes"></textarea>
+        </div>
+        <button class="delete-btn" onclick="this.closest('.vacina-form').remove()">Excluir</button>
+      `;
+      container.insertBefore(newVac, container.lastElementChild);
+    }
+
+    // Função para alternar modo de edição
+    function toggleEditMode() {
+      isEditing = !isEditing;
+      document.getElementById('editUserBtn').style.display = isEditing ? 'none' : 'block';
+      document.getElementById('saveUserBtn').style.display = isEditing ? 'block' : 'none';
+      renderUserDetail(currentUserData);
+    }
+
+    // Função para salvar alterações do usuário
+    async function saveUserChanges() {
+      try {
+        const userRef = db.collection('usuarios').doc(currentEditingUser);
+        const updatedData = { ...currentUserData };
+
+        // Validação dos campos obrigatórios
+        const nome = document.querySelector('[data-field="identificacao.nome"]')?.value;
+        const dataNascimento = document.querySelector('[data-field="identificacao.dataNascimento"]')?.value;
+        
+        if (!nome || !dataNascimento) {
+          showPopup('Nome e data de nascimento são obrigatórios!', true);
+          return;
+        }
+
+        updatedData.identificacao = {
+          nome: nome,
+          dataNascimento: dataNascimento,
+          contato: document.querySelector('[data-field="identificacao.contato"]')?.value || '',
+          contatoEmergencia: document.querySelector('[data-field="identificacao.contatoEmergencia"]')?.value || '',
+          peso: document.querySelector('[data-field="identificacao.peso"]')?.value || ''
+        };
+
+        updatedData.doencas = {
+          hipertensao: document.querySelector('[data-field="doencas.hipertensao"]')?.checked || false,
+          diabetes: document.querySelector('[data-field="doencas.diabetes"]')?.checked || false,
+          cardiopatias: document.querySelector('[data-field="doencas.cardiopatias"]')?.checked || false,
+          chagas: document.querySelector('[data-field="doencas.chagas"]')?.checked || false,
+          outras: document.querySelector('[data-field="doencas.outras"]')?.value || ''
+        };
+
+        updatedData.vacinacao = Array.from(document.querySelectorAll('#detail-vacinacao .vacina-form')).map(form => ({
+          nomeVacina: form.querySelector('[data-field$=".nomeVacina"]')?.value || '',
+          dataAplicacao: form.querySelector('[data-field$=".dataAplicacao"]')?.value || '',
+          loteVacina: form.querySelector('[data-field$=".loteVacina"]')?.value || '',
+          observacoes: form.querySelector('[data-field$=".observacoes"]')?.value || ''
+        }));
+
+        updatedData.medicamentos = Array.from(document.querySelectorAll('#detail-medicamentos .medicamento-form')).map(form => ({
+          nome: form.querySelector('[data-field$=".nome"]')?.value || '',
+          dose: form.querySelector('[data-field$=".dose"]')?.value || '',
+          posologia: form.querySelector('[data-field$=".posologia"]')?.value || '',
+          horario: form.querySelector('[data-field$=".horario"]')?.value || ''
+        }));
+
+        updatedData.anotacoes = document.querySelector('[data-field="anotacoes"]')?.value || '';
+
+        await userRef.set(updatedData, { merge: true });
+        
+        // Forçar atualização do cache local
+        const doc = await userRef.get();
+        currentUserData = doc.data();
+        
+        showPopup('Alterações salvas com sucesso!');
+        toggleEditMode();
+      } catch (error) {
+        console.error('Erro ao salvar alterações:', error);
+        showPopup('Erro ao salvar alterações!', true);
+      }
+    }
+
+    // Função para excluir usuário
+    async function deleteUser() {
+      if(confirm('Tem certeza que deseja excluir este usuário permanentemente?')) {
+        try {
+          // Primeiro deleta todos os exames do usuário
+          const examesRef = db.collection('exames').where('pacienteId', '==', currentEditingUser);
+          const querySnapshot = await examesRef.get();
+          
+          const batch = db.batch();
+          querySnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+          });
+          
+          await batch.commit();
+          
+          // Depois deleta o usuário do Firestore
+          await db.collection('usuarios').doc(currentEditingUser).delete();
+          
+          showPopup('Usuário excluído com sucesso!');
+          closeUserDetail();
+          loadMedicalAccess();
+        } catch (error) {
+          console.error('Erro ao excluir usuário:', error);
+          showPopup('Erro ao excluir usuário!', true);
+        }
+      }
+    }
+
+    // Função para fechar detalhes do usuário
+    function closeUserDetail() {
+      if(userDetailUnsubscribe) {
+        userDetailUnsubscribe();
+        userDetailUnsubscribe = null;
+      }
+      currentEditingUser = null;
+      currentDetailTab = 'detail-identificacao';
+      document.getElementById('userDetailScreen').style.display = 'none';
+      document.getElementById('medicalAccessScreen').style.display = 'block';
+    }
+
+    // Função para excluir entrada de monitoramento
+    async function deleteMonitoramentoEntry(username, timestamp) {
+      try {
+        const userRef = db.collection('usuarios').doc(username);
+        const userDoc = await userRef.get();
+        const monitoramento = userDoc.data().monitoramento || [];
+        const updatedMonitoramento = monitoramento.filter(entry => entry.timestamp !== timestamp);
+
+        await userRef.update({ monitoramento: updatedMonitoramento });
+        showPopup('Registro de monitoramento excluído com sucesso!');
+        if (document.getElementById('userDetailScreen').style.display === 'block') {
+          renderUserDetail({ ...userDoc.data(), monitoramento: updatedMonitoramento });
+        }
+      } catch (error) {
+        console.error('Erro ao excluir registro de monitoramento:', error);
+        showPopup('Erro ao excluir registro de monitoramento!', true);
+      }
+    }
+
+    // Event listener para logout médico
+    document.getElementById('medLogoutBtn').addEventListener('click', () => {
+      if (medicalAccessUnsubscribe) {
+        medicalAccessUnsubscribe();
+        medicalAccessUnsubscribe = null;
+      }
+      document.getElementById('medicalAccessScreen').style.display = 'none';
+      document.getElementById('medicalLoginScreen').style.display = 'block';
+    });
+
+    // Event listener para gerar QR code
+    document.getElementById('generateQrBtn').addEventListener('click', () => {
+      document.getElementById('medicalAccessScreen').style.display = 'none';
+      document.getElementById('qrCodeScreen').style.display = 'block';
+    });
+
+    // Event listener para fechar tela de QR code
+    document.getElementById('closeQrBtn').addEventListener('click', () => {
+      document.getElementById('qrCodeScreen').style.display = 'none';
+      document.getElementById('medicalAccessScreen').style.display = 'block';
+    });
+
+    // Event listener para gerar QR code
+    document.getElementById('generateQrCodeBtn').addEventListener('click', async () => {
+      const nome = document.getElementById('qrNome').value;
+      const dataNascimento = document.getElementById('qrNascimento').value;
+      
+      if(!nome || !dataNascimento) {
+        alert('Por favor, preencha todos os campos obrigatórios!');
+        return;
+      }
+      
+      const pacienteData = {
+        nome: nome,
+        dataNascimento: dataNascimento,
+        timestamp: new Date().toISOString()
+      };
+      
+      const qrData = JSON.stringify(pacienteData);
+      
+      QRCode.toCanvas(document.getElementById('qrCanvas'), qrData, { width: 200 }, (error) => {
+        if (error) {
+          console.error('Erro ao gerar QR Code:', error);
+          showPopup('Erro ao gerar QR Code!', true);
+        } else {
+          document.getElementById('qrCodeContainer').style.display = 'block';
+          showPopup('QR Code gerado com sucesso!');
+        }
+      });
+    });
+
+    // Configurar botões de exames
+    document.getElementById('addExamBtn').addEventListener('click', openExamModal);
+    document.getElementById('takePhotoBtn').addEventListener('click', takeExamPhoto);
+    document.getElementById('uploadPhotoBtn').addEventListener('click', () => {
+      document.getElementById('examFileInput').click();
+    });
+    document.getElementById('closeExamModalBtn').addEventListener('click', closeExamModal);
+    document.getElementById('examFileInput').addEventListener('change', handleFileUpload);
+
+    // Iniciar aplicativo mostrando a tela de login médico
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('medicalLoginScreen').style.display = 'block';
+      
+      // Adicionar prompt de instalação do PWA
+      let deferredPrompt;
+      
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        showInstallPrompt();
+      });
+      
+      function showInstallPrompt() {
+        if(deferredPrompt && confirm('Deseja instalar o aplicativo de Acesso Médico em seu dispositivo para melhor experiência?')) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('Usuário aceitou a instalação');
+            } else {
+              console.log('Usuário recusou a instalação');
+            }
+            deferredPrompt = null;
+          });
+        }
+      }
+      
+      // Registrar Service Worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('Service Worker registrado:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Falha no registro:', error);
+          });
+      }
+    });
+  </script>
+</body>
+</html>
