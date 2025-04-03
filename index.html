@@ -8,13 +8,14 @@
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="manifest" href="/manifest.json">
   <title>Acesso Médico - Caderneta Idoso</title>
-  <link rel="icon" type="image/png" href="https://imgur.com/a/KCvjSVo.png">
-  <link rel="apple-touch-icon" href="https://imgur.com/a/KCvjSVo.png">
+  <link rel="icon" type="image/png" href="https://i.imgur.com/z8sFZHC.png">
+  <link rel="apple-touch-icon" href="https://i.imgur.com/z8sFZHC.png">
   <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-storage-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -33,25 +34,6 @@
       padding: 30px;
       border-radius: 12px;
       position: relative;
-    }
-    
-    .btn {
-      margin-top: 20px;
-      padding: 12px 20px;
-      border: none;
-      background: #3b5448;
-      color: #fff;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 600;
-      transition: background-color 0.3s;
-      width: 100%;
-      max-width: 200px;
-    }
-    
-    .btn:hover {
-      background-color: #2d4036;
     }
     
     .popup {
@@ -83,65 +65,50 @@
       }
     }
     
-    .medical-search {
-      width: 80%;
-      max-width: 400px;
-      padding: 10px;
-      margin: 10px auto;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      display: block;
-    }
-    
-    .user-list {
-      max-height: 400px;
-      overflow-y: auto;
-      margin: 15px auto;
-      width: 90%;
-      max-width: 600px;
-      text-align: left;
-    }
-    
-    .user-item {
-      padding: 15px;
-      margin: 10px 0;
-      background: #f8f9fa;
+    .btn {
+      margin-top: 20px;
+      padding: 12px 20px;
+      border: none;
+      background: #3b5448;
+      color: #fff;
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.3s;
-      text-align: left;
-    }
-    
-    .user-item:hover {
-      background: #e9ecef;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .user-name {
+      font-size: 16px;
       font-weight: 600;
-      font-size: 1.1em;
-      margin-bottom: 5px;
+      transition: background-color 0.3s;
+      width: 100%;
+      max-width: 200px;
     }
     
-    .user-details {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9em;
-      color: #666;
+    .btn:hover {
+      background-color: #2d4036;
     }
     
-    .medical-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 20px;
+    .btn-danger {
+      background-color: #dc3545;
     }
     
-    .no-users {
-      text-align: center;
-      color: #666;
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+    
+    #medicalLoginScreen,
+    #medicalAccessScreen,
+    #userDetailScreen,
+    #qrCodeScreen {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
       padding: 20px;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 800px;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      text-align: left;
     }
     
     #userDetailTabs {
@@ -248,17 +215,87 @@
       display: none;
     }
     
-    .btn-danger {
-      background-color: #dc3545;
+    .medical-search {
+      width: 80%;
+      max-width: 400px;
+      padding: 10px;
+      margin: 10px auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      display: block;
     }
     
-    .btn-danger:hover {
-      background-color: #c82333;
+    .user-list {
+      max-height: 400px;
+      overflow-y: auto;
+      margin: 15px auto;
+      width: 90%;
+      max-width: 600px;
+      text-align: left;
     }
     
-    .add-item-btn {
+    .user-item {
+      padding: 15px;
       margin: 10px 0;
-      background: #4D6057;
+      background: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: left;
+    }
+    
+    .user-item:hover {
+      background: #e9ecef;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .user-name {
+      font-weight: 600;
+      font-size: 1.1em;
+      margin-bottom: 5px;
+    }
+    
+    .user-details {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9em;
+      color: #666;
+    }
+    
+    .medical-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .editable-field {
+      border: 1px solid transparent;
+      padding: 5px;
+      margin: 5px 0;
+      transition: all 0.3s;
+      text-align: left;
+    }
+    
+    .editing .editable-field {
+      border-color: #4D6057;
+      background-color: #f8f9fa;
+    }
+    
+    .edit-input {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: left;
+    }
+    
+    .no-users {
+      text-align: center;
+      color: #666;
+      padding: 20px;
     }
     
     .exames-container {
@@ -454,185 +491,6 @@
       background-color: #c82333;
     }
     
-    .exam-modal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      z-index: 1000;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      display: none;
-    }
-    
-    .exam-modal h3 {
-      margin-top: 0;
-      color: #4D6057;
-      text-align: center;
-    }
-    
-    .exam-modal-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    
-    .exam-modal-actions .action-btn {
-      flex: 1;
-    }
-    
-    /* Estilos para a câmera */
-    .camera-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: black;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 1001;
-    }
-    
-    #cameraVideo {
-      width: 100%;
-      max-width: 500px;
-      background: black;
-    }
-    
-    .camera-controls {
-      position: fixed;
-      bottom: 20px;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      z-index: 1002;
-    }
-    
-    .camera-btn {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(255,255,255,0.2);
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    #captureBtn {
-      background: #fff;
-      color: #333;
-    }
-    
-    #closeCameraBtn {
-      background: #dc3545;
-    }
-    
-    #flipCameraBtn {
-      background: rgba(255,255,255,0.2);
-    }
-    
-    #cameraCanvas {
-      display: none;
-    }
-    
-    .exam-name-dialog {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      z-index: 1003;
-      width: 90%;
-      max-width: 400px;
-      display: none;
-    }
-    
-    .exam-name-dialog h3 {
-      margin-top: 0;
-      color: #4D6057;
-    }
-    
-    .exam-name-dialog input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    
-    .exam-name-dialog-buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 15px;
-    }
-    
-    /* Estilos para o modal de prévia da foto */
-    #photoPreviewModal {
-      z-index: 1002;
-    }
-    
-    #photoPreviewModal img {
-      max-height: 50vh;
-      border-radius: 8px;
-      border: 2px solid #fff;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    
-    @media (max-width: 600px) {
-      .exame-info {
-        gap: 10px;
-      }
-      
-      .exame-thumbnail {
-        width: 50px;
-        height: 50px;
-      }
-      
-      .action-buttons {
-        flex-direction: column;
-      }
-      
-      .action-btn {
-        width: 100%;
-      }
-      
-      #userDetailTabs {
-        grid-template-columns: 1fr;
-      }
-      
-      .detail-tab {
-        font-size: 13px;
-        padding: 10px;
-      }
-      
-      .compact-form {
-        grid-template-columns: 1fr;
-      }
-      
-      .user-details {
-        flex-direction: column;
-      }
-      
-      .medical-search {
-        width: 90%;
-      }
-    }
-    
     #medicalLoginScreen h2,
     #medicalAccessScreen h2,
     #qrCodeScreen h2 {
@@ -660,6 +518,25 @@
     #qrCodeScreen {
       text-align: left;
     }
+
+    @media (max-width: 600px) {
+      #userDetailTabs {
+        grid-template-columns: 1fr;
+      }
+      .detail-tab {
+        font-size: 13px;
+        padding: 10px;
+      }
+      .compact-form {
+        grid-template-columns: 1fr;
+      }
+      .user-details {
+        flex-direction: column;
+      }
+      .medical-search {
+        width: 90%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -674,7 +551,7 @@
   </div>
 
   <!-- Tela de Acesso Médico -->
-  <div id="medicalAccessScreen" class="container" style="display: none;">
+  <div id="medicalAccessScreen">
     <h2>Acesso Médico</h2>
     <input type="text" id="userSearch" placeholder="Pesquisar usuários..." class="medical-search">
     <div class="user-list" id="userList"></div>
@@ -685,7 +562,7 @@
   </div>
 
   <!-- Tela de Geração de QR Code -->
-  <div id="qrCodeScreen" class="container" style="display: none;">
+  <div id="qrCodeScreen">
     <h2>Gerar Novo Registro</h2>
     <form id="qrCodeForm">
       <label for="qrNome">Nome do Paciente:</label>
@@ -707,7 +584,7 @@
   </div>
 
   <!-- Tela de Detalhes do Paciente -->
-  <div id="userDetailScreen" class="container" style="display: none;">
+  <div id="userDetailScreen">
     <h2>Detalhes do Paciente</h2>
     <div id="userDetailTabs">
       <div class="detail-tab active" data-tab="detail-identificacao">Identificação</div>
@@ -736,73 +613,34 @@
     <button id="closePreviewBtn"><i class="fas fa-times"></i></button>
     <img id="examePreviewImage" src="" alt="Visualização do Exame">
   </div>
-  
-  <!-- Modal para upload/tirar foto de exames -->
-  <div id="examModal" class="exam-modal">
-    <h3>Adicionar Exame</h3>
-    <p>Escolha como deseja adicionar o exame:</p>
-    <div class="exam-modal-actions">
-      <button id="takePhotoBtn" class="action-btn btn-primary">
-        <i class="fas fa-camera"></i> Tirar Foto
-      </button>
-      <button id="uploadPhotoBtn" class="action-btn btn-secondary">
-        <i class="fas fa-upload"></i> Upload
-      </button>
-    </div>
-    <button id="closeExamModalBtn" class="action-btn btn-danger" style="margin-top: 10px;">
-      <i class="fas fa-times"></i> Cancelar
-    </button>
-  </div>
 
-  <!-- Modal de Prévia da Foto -->
-  <div id="photoPreviewModal" class="exam-modal" style="display: none;">
-    <h3>Prévia do Exame</h3>
-    <img id="previewImage" src="" alt="Prévia do Exame" style="max-width: 100%; margin: 15px 0;">
-    <div class="exam-modal-actions">
-      <button id="retakePhotoBtn" class="action-btn btn-danger">
-        <i class="fas fa-sync-alt"></i> Tirar Novamente
-      </button>
-      <button id="confirmPhotoBtn" class="action-btn btn-primary">
-        <i class="fas fa-check"></i> Confirmar
-      </button>
-    </div>
-  </div>
-
-  <!-- Input oculto para upload de arquivos -->
-  <input type="file" id="examFileInput" accept="image/*" style="display: none;">
-
-  <!-- Elementos da câmera para exames -->
-  <div class="camera-container" id="cameraContainer">
-    <video id="cameraVideo" autoplay playsinline></video>
-    <canvas id="cameraCanvas"></canvas>
-    
-    <div class="camera-controls">
-      <button id="closeCameraBtn" class="camera-btn">
-        <i class="fas fa-times"></i>
-      </button>
-      <button id="captureBtn" class="camera-btn">
-        <i class="fas fa-camera"></i>
-      </button>
-      <button id="flipCameraBtn" class="camera-btn">
-        <i class="fas fa-sync-alt"></i>
-      </button>
-    </div>
-  </div>
-  
-  <div class="exam-name-dialog" id="examNameDialog">
-    <h3>Nome do Exame</h3>
-    <input type="text" id="examNameInput" placeholder="Digite o nome do exame">
-    <div class="exam-name-dialog-buttons">
-      <button id="cancelExamNameBtn" class="btn btn-danger">Cancelar</button>
-      <button id="saveExamNameBtn" class="btn">Salvar</button>
-    </div>
-  </div>
-
-  <div id="popup" class="popup"></div>
+  <div id="popup" class="popup">Dados salvos com sucesso!</div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    // Configuração do Firebase
+    // Adicionando o prompt de instalação do PWA
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      showInstallPrompt();
+    });
+    
+    function showInstallPrompt() {
+      if(deferredPrompt && confirm('Deseja instalar o aplicativo Caderneta do Idoso em seu dispositivo para melhor experiência?')) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('Usuário aceitou a instalação');
+          } else {
+            console.log('Usuário recusou a instalação');
+          }
+          deferredPrompt = null;
+        });
+      }
+    }
+
     const firebaseConfig = {
       apiKey: "AIzaSyCMP_bBotEMngO0pLkxhrZvvgCJqIFTZCY",
       authDomain: "cadernetavirtualdoidoso.firebaseapp.com",
@@ -816,7 +654,6 @@
     const db = firebase.firestore();
     const storage = firebase.storage();
 
-    // Variáveis globais
     let currentDetailTab = 'detail-identificacao';
     let userDetailUnsubscribe = null;
     let medicalAccessUnsubscribe = null;
@@ -824,26 +661,12 @@
     let isEditing = false;
     let currentUserData = null;
     let examesUnsubscribe = null;
-    let cameraStream = null;
-    let usingFrontCamera = false;
-    let capturedPhotoUrl = null;
 
-    // Função para formatar data
     function formatDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
     }
 
-    // Função para mostrar popup
-    function showPopup(message, isError = false) {
-      const popup = document.getElementById('popup');
-      popup.textContent = message;
-      popup.style.backgroundColor = isError ? '#dc3545' : '#3b5448';
-      popup.classList.add('show');
-      setTimeout(() => popup.classList.remove('show'), 3000);
-    }
-
-    // Função para carregar exames do usuário
     async function loadUserExames(username) {
       try {
         const examesRef = db.collection('exames').where('pacienteId', '==', username);
@@ -904,7 +727,6 @@
       }
     }
 
-    // Função para mostrar prévia do exame
     function showExamePreview(imageUrl) {
       const modal = document.getElementById('examePreviewModal');
       const img = document.getElementById('examePreviewImage');
@@ -916,7 +738,6 @@
       };
     }
 
-    // Função para excluir exame
     async function deleteExame(exameId) {
       if(!confirm('Tem certeza que deseja excluir este exame permanentemente?')) return;
       
@@ -924,7 +745,7 @@
         await db.collection('exames').doc(exameId).delete();
         showPopup('Exame excluído com sucesso!');
         
-        // Atualiza a lista de exames na tela de detalhes do médico
+        // Atualiza a lista de exames na tela de detalhes
         if (document.getElementById('userDetailScreen').style.display === 'block') {
           loadUserExames(currentEditingUser);
         }
@@ -934,208 +755,10 @@
       }
     }
 
-    // Função para abrir modal de exames
-    function openExamModal() {
-      document.getElementById('examModal').style.display = 'block';
-    }
-
-    // Função para fechar modal de exames
-    function closeExamModal() {
-      document.getElementById('examModal').style.display = 'none';
-    }
-
-    // Função para iniciar a câmera
-    async function startCamera(facingMode = 'environment') {
-      try {
-        stopCamera(); // Para qualquer stream existente
-        
-        const constraints = {
-          video: { 
-            facingMode: facingMode,
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        };
-        
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        const video = document.getElementById('cameraVideo');
-        
-        video.srcObject = stream;
-        cameraStream = stream;
-        document.getElementById('cameraContainer').style.display = 'flex';
-        
-        video.onloadedmetadata = () => {
-          video.play();
-        };
-        
-      } catch (error) {
-        console.error('Erro ao acessar câmera:', error);
-        showPopup('Não foi possível acessar a câmera. Verifique as permissões.', true);
-      }
-    }
-    
-    // Função para parar a câmera
-    function stopCamera() {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
-      }
-      document.getElementById('cameraContainer').style.display = 'none';
-    }
-    
-    // Função para capturar foto
-    function capturePhoto() {
-      const video = document.getElementById('cameraVideo');
-      const canvas = document.getElementById('cameraCanvas');
-      const context = canvas.getContext('2d');
-      
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      
-      capturedPhotoUrl = canvas.toDataURL('image/jpeg', 0.8);
-      showPhotoPreview(capturedPhotoUrl);
-    }
-    
-    // Função para mostrar prévia da foto
-    function showPhotoPreview(imageUrl) {
-      const previewModal = document.getElementById('photoPreviewModal');
-      const previewImage = document.getElementById('previewImage');
-      previewImage.src = imageUrl;
-      previewModal.style.display = 'block';
-    }
-    
-    // Função para confirmar foto
-    function confirmPhoto() {
-      document.getElementById('photoPreviewModal').style.display = 'none';
-      document.getElementById('examNameDialog').style.display = 'block';
-      document.getElementById('examNameInput').focus();
-    }
-    
-    // Função para tirar foto novamente
-    function retakePhoto() {
-      document.getElementById('photoPreviewModal').style.display = 'none';
-      startCamera(usingFrontCamera ? 'user' : 'environment');
-    }
-    
-    // Função para alternar entre câmeras
-    function flipCamera() {
-      usingFrontCamera = !usingFrontCamera;
-      startCamera(usingFrontCamera ? 'user' : 'environment');
-    }
-
-    // Função para tirar foto do exame
-    async function takeExamPhoto() {
-      closeExamModal();
-      startCamera('environment'); // Usa a câmera traseira por padrão
-    }
-
-    // Função para lidar com upload de arquivo
-    async function handleFileUpload(event) {
-      closeExamModal();
-      const file = event.target.files[0];
-      if (!file) return;
-      
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const description = prompt('Descreva o exame (opcional):');
-        uploadExamToFirebase(e.target.result, description);
-      };
-      reader.readAsDataURL(file);
-    }
-
-    // Função para enviar exame para o Firebase
-    async function uploadExamToFirebase(imageData, description) {
-      const username = currentEditingUser;
-      if (!username) {
-        showPopup('Nenhum usuário selecionado!', true);
-        return;
-      }
-      
-      try {
-        showPopup('Salvando exame...');
-        
-        const timestamp = new Date().toISOString();
-        
-        // Salva no Firestore
-        await db.collection('exames').add({
-          pacienteId: username,
-          url: imageData,
-          descricao: description || '',
-          data: timestamp
-        });
-        
-        showPopup('Exame salvo com sucesso!');
-        
-        // Atualiza a lista de exames na tela de detalhes
-        loadUserExames(username);
-        
-      } catch (error) {
-        console.error('Erro ao salvar exame:', error);
-        showPopup('Erro ao salvar exame!', true);
-      }
-    }
-
-    // Event listeners para os controles da câmera
-    document.getElementById('captureBtn').addEventListener('click', capturePhoto);
-    document.getElementById('closeCameraBtn').addEventListener('click', stopCamera);
-    document.getElementById('flipCameraBtn').addEventListener('click', flipCamera);
-    
-    // Event listeners para o diálogo de nome do exame
-    document.getElementById('cancelExamNameBtn').addEventListener('click', () => {
-      document.getElementById('examNameDialog').style.display = 'none';
-      capturedPhotoUrl = null;
-    });
-    
-    document.getElementById('saveExamNameBtn').addEventListener('click', async () => {
-      const examName = document.getElementById('examNameInput').value.trim();
-      if (!examName) {
-        alert('Por favor, digite um nome para o exame');
-        return;
-      }
-      
-      document.getElementById('examNameDialog').style.display = 'none';
-      document.getElementById('examNameInput').value = '';
-      
-      if (capturedPhotoUrl) {
-        try {
-          const username = currentEditingUser;
-          if (!username) {
-            showPopup('Nenhum usuário selecionado!', true);
-            return;
-          }
-          
-          showPopup('Salvando exame...');
-          
-          const timestamp = new Date().toISOString();
-          
-          // Salva no Firestore
-          await db.collection('exames').add({
-            pacienteId: username,
-            url: capturedPhotoUrl,
-            descricao: examName,
-            data: timestamp
-          });
-          
-          showPopup('Exame salvo com sucesso!');
-          
-          // Atualiza a lista de exames
-          loadUserExames(username);
-          
-          capturedPhotoUrl = null;
-          stopCamera();
-        } catch (error) {
-          console.error('Erro ao salvar exame:', error);
-          showPopup('Erro ao salvar exame!', true);
-        }
-      }
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('medicalLoginScreen').style.display = 'block';
     });
 
-    // Event listeners para o modal de prévia da foto
-    document.getElementById('retakePhotoBtn').addEventListener('click', retakePhoto);
-    document.getElementById('confirmPhotoBtn').addEventListener('click', confirmPhoto);
-
-    // Event listener para o botão de login médico
     document.getElementById('medLoginBtn').addEventListener('click', () => {
       const username = document.getElementById('medUsername').value;
       const password = document.getElementById('medPassword').value;
@@ -1148,7 +771,6 @@
       }
     });
 
-    // Função para carregar a tela de acesso médico
     async function loadMedicalAccess() {
       document.getElementById('medicalAccessScreen').style.display = 'block';
       
@@ -1187,7 +809,6 @@
       });
     }
 
-    // Função para exibir lista de usuários
     function displayUsers(users) {
       const userList = document.getElementById('userList');
       
@@ -1207,7 +828,6 @@
       `).join('');
     }
 
-    // Função para mostrar detalhes do usuário
     async function showUserDetail(userId) {
       currentEditingUser = userId;
       if(userDetailUnsubscribe) userDetailUnsubscribe();
@@ -1236,7 +856,6 @@
       }
     }
 
-    // Função para renderizar detalhes do usuário
     function renderUserDetail(userData) {
       const detailContent = document.getElementById('userDetailContent');
       detailContent.innerHTML = `
@@ -1419,7 +1038,6 @@
       }
     }
 
-    // Função para adicionar novo medicamento
     function addNewMedicamento() {
       const container = document.querySelector('#detail-medicamentos');
       const newIndex = container.querySelectorAll('.medicamento-form').length;
@@ -1448,7 +1066,6 @@
       container.insertBefore(newMed, container.lastElementChild);
     }
 
-    // Função para adicionar nova vacina
     function addNewVacina() {
       const container = document.querySelector('#detail-vacinacao');
       const newIndex = container.querySelectorAll('.vacina-form').length;
@@ -1477,7 +1094,6 @@
       container.insertBefore(newVac, container.lastElementChild);
     }
 
-    // Função para alternar modo de edição
     function toggleEditMode() {
       isEditing = !isEditing;
       document.getElementById('editUserBtn').style.display = isEditing ? 'none' : 'block';
@@ -1485,7 +1101,6 @@
       renderUserDetail(currentUserData);
     }
 
-    // Função para salvar alterações do usuário
     async function saveUserChanges() {
       try {
         const userRef = db.collection('usuarios').doc(currentEditingUser);
@@ -1546,7 +1161,24 @@
       }
     }
 
-    // Função para excluir usuário
+    async function deleteMonitoramentoEntry(username, timestamp) {
+      try {
+        const userRef = db.collection('usuarios').doc(username);
+        const userDoc = await userRef.get();
+        const monitoramento = userDoc.data().monitoramento || [];
+        const updatedMonitoramento = monitoramento.filter(entry => entry.timestamp !== timestamp);
+
+        await userRef.update({ monitoramento: updatedMonitoramento });
+        showPopup('Registro de monitoramento excluído com sucesso!');
+        if (document.getElementById('userDetailScreen').style.display === 'block') {
+          renderUserDetail({ ...userDoc.data(), monitoramento: updatedMonitoramento });
+        }
+      } catch (error) {
+        console.error('Erro ao excluir registro de monitoramento:', error);
+        showPopup('Erro ao excluir registro de monitoramento!', true);
+      }
+    }
+
     async function deleteUser() {
       if(confirm('Tem certeza que deseja excluir este usuário permanentemente?')) {
         try {
@@ -1574,7 +1206,6 @@
       }
     }
 
-    // Função para fechar detalhes do usuário
     function closeUserDetail() {
       if(userDetailUnsubscribe) {
         userDetailUnsubscribe();
@@ -1586,26 +1217,6 @@
       document.getElementById('medicalAccessScreen').style.display = 'block';
     }
 
-    // Função para excluir entrada de monitoramento
-    async function deleteMonitoramentoEntry(username, timestamp) {
-      try {
-        const userRef = db.collection('usuarios').doc(username);
-        const userDoc = await userRef.get();
-        const monitoramento = userDoc.data().monitoramento || [];
-        const updatedMonitoramento = monitoramento.filter(entry => entry.timestamp !== timestamp);
-
-        await userRef.update({ monitoramento: updatedMonitoramento });
-        showPopup('Registro de monitoramento excluído com sucesso!');
-        if (document.getElementById('userDetailScreen').style.display === 'block') {
-          renderUserDetail({ ...userDoc.data(), monitoramento: updatedMonitoramento });
-        }
-      } catch (error) {
-        console.error('Erro ao excluir registro de monitoramento:', error);
-        showPopup('Erro ao excluir registro de monitoramento!', true);
-      }
-    }
-
-    // Event listener para logout médico
     document.getElementById('medLogoutBtn').addEventListener('click', () => {
       if (medicalAccessUnsubscribe) {
         medicalAccessUnsubscribe();
@@ -1615,19 +1226,16 @@
       document.getElementById('medicalLoginScreen').style.display = 'block';
     });
 
-    // Event listener para gerar QR code
     document.getElementById('generateQrBtn').addEventListener('click', () => {
       document.getElementById('medicalAccessScreen').style.display = 'none';
       document.getElementById('qrCodeScreen').style.display = 'block';
     });
 
-    // Event listener para fechar tela de QR code
     document.getElementById('closeQrBtn').addEventListener('click', () => {
       document.getElementById('qrCodeScreen').style.display = 'none';
       document.getElementById('medicalAccessScreen').style.display = 'block';
     });
 
-    // Event listener para gerar QR code
     document.getElementById('generateQrCodeBtn').addEventListener('click', async () => {
       const nome = document.getElementById('qrNome').value;
       const dataNascimento = document.getElementById('qrNascimento').value;
@@ -1656,44 +1264,17 @@
       });
     });
 
-    // Configurar botões de exames
-    document.getElementById('addExamBtn').addEventListener('click', openExamModal);
-    document.getElementById('takePhotoBtn').addEventListener('click', takeExamPhoto);
-    document.getElementById('uploadPhotoBtn').addEventListener('click', () => {
-      document.getElementById('examFileInput').click();
-    });
-    document.getElementById('closeExamModalBtn').addEventListener('click', closeExamModal);
-    document.getElementById('examFileInput').addEventListener('change', handleFileUpload);
+    function showPopup(message, isError = false) {
+      const popup = document.getElementById('popup');
+      popup.textContent = message;
+      popup.style.backgroundColor = isError ? '#dc3545' : '#3b5448';
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 3000);
+    }
 
-    // Iniciar aplicativo mostrando a tela de login médico
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('medicalLoginScreen').style.display = 'block';
-      
-      // Adicionar prompt de instalação do PWA
-      let deferredPrompt;
-      
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        showInstallPrompt();
-      });
-      
-      function showInstallPrompt() {
-        if(deferredPrompt && confirm('Deseja instalar o aplicativo de Acesso Médico em seu dispositivo para melhor experiência?')) {
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-              console.log('Usuário aceitou a instalação');
-            } else {
-              console.log('Usuário recusou a instalação');
-            }
-            deferredPrompt = null;
-          });
-        }
-      }
-      
-      // Registrar Service Worker
-      if ('serviceWorker' in navigator) {
+    // Registrar o Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
           .then(registration => {
             console.log('Service Worker registrado:', registration.scope);
@@ -1701,8 +1282,8 @@
           .catch(error => {
             console.log('Falha no registro:', error);
           });
-      }
-    });
+      });
+    }
   </script>
 </body>
 </html>
