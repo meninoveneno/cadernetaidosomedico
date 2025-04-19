@@ -235,7 +235,7 @@
       padding: 20px;
     }
     
-    /* Tela de Geração de QR Code */
+    /* Tela de Geração de QR Code - Reduzida */
     #qrCodeScreen {
       display: none;
       position: relative;
@@ -243,7 +243,7 @@
       padding: 20px;
       border-radius: 12px;
       width: 95%;
-      max-width: 500px;
+      max-width: 400px;
       margin: 20px auto;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       text-align: center;
@@ -251,8 +251,9 @@
     
     #qrCodeScreen h2 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       color: #4D6057;
+      font-size: 1.3em;
     }
     
     #qrCodeScreen form {
@@ -263,8 +264,8 @@
     
     #qrCodeScreen label {
       display: block;
-      margin-top: 12px;
-      font-size: 16px;
+      margin-top: 8px;
+      font-size: 14px;
       font-weight: 600;
       color: #495057;
       text-align: center;
@@ -272,20 +273,32 @@
     }
     
     #qrCodeScreen input {
-      width: 80%;
-      max-width: 400px;
-      padding: 10px;
-      margin: 10px auto;
+      width: 90%;
+      max-width: 350px;
+      padding: 8px;
+      margin: 5px auto;
       border: 1px solid #ddd;
       border-radius: 8px;
       display: block;
       text-align: center;
+      font-size: 14px;
     }
     
     #qrCodeContainer {
       text-align: center;
-      margin: 20px 0;
+      margin: 15px 0;
       display: none;
+    }
+    
+    #qrCodeContainer canvas {
+      width: 180px;
+      height: 180px;
+    }
+    
+    #qrCodeContainer p {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #666;
     }
     
     /* Tela de Detalhes do Paciente */
@@ -310,19 +323,19 @@
     
     #userDetailTabs {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 5px;
       margin-bottom: 20px;
     }
     
     .detail-tab {
-      padding: 12px;
+      padding: 10px;
       text-align: center;
       background: #e9ecef;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s;
-      font-size: 14px;
+      font-size: 13px;
     }
     
     .detail-tab.active {
@@ -422,457 +435,6 @@
       background: #4D6057;
     }
     
-    /* Estilos para o carrossel de fotos */
-    .photo-carousel {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding: 10px 0;
-      margin: 10px 0;
-      scroll-snap-type: x mandatory;
-    }
-    
-    .photo-carousel-item {
-      position: relative;
-      flex: 0 0 auto;
-      scroll-snap-align: start;
-    }
-    
-    .photo-carousel-img {
-      width: 200px;
-      height: 200px;
-      object-fit: contain;
-      border-radius: 8px;
-      border: 2px solid #4D6057;
-      background-color: #f8f9fa;
-    }
-    
-    .photo-carousel-delete {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #dc3545;
-      color: white;
-      border: none;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    /* Estilos para o modal de visualização de fotos */
-    .photo-viewer-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.9);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1004;
-    }
-    
-    .photo-viewer-container {
-      position: relative;
-      width: 90%;
-      max-width: 800px;
-      height: 80vh;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .photo-viewer-main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    
-    .photo-viewer-main img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-    
-    .photo-viewer-thumbnails {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding: 10px 0;
-    }
-    
-    .photo-viewer-thumbnail {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 4px;
-      border: 2px solid transparent;
-      cursor: pointer;
-      opacity: 0.7;
-      transition: all 0.2s;
-    }
-    
-    .photo-viewer-thumbnail.active {
-      border-color: #4D6057;
-      opacity: 1;
-    }
-    
-    .photo-viewer-thumbnail:hover {
-      opacity: 1;
-    }
-    
-    .photo-viewer-close {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: #dc3545;
-      color: white;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 18px;
-    }
-    
-    .photo-viewer-nav {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0,0,0,0.5);
-      color: white;
-      border: none;
-      width: 40px;
-      height: 60px;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-    }
-    
-    .photo-viewer-prev {
-      left: 20px;
-    }
-    
-    .photo-viewer-next {
-      right: 20px;
-    }
-
-    /* Modal para visualização de exames */
-    #examePreviewModal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.9);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    
-    #examePreviewImage {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 4px;
-    }
-    
-    #closePreviewBtn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: #dc3545;
-      color: white;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 18px;
-    }
-
-    /* Modal para upload/tirar foto de exames */
-    .exam-modal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      z-index: 1000;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      display: none;
-    }
-    
-    .exam-modal h3 {
-      margin-top: 0;
-      color: #4D6057;
-      text-align: center;
-    }
-    
-    .exam-modal-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    
-    .action-btn {
-      flex: 1;
-      min-width: 120px;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    
-    .action-btn i {
-      font-size: 16px;
-    }
-    
-    .btn-primary {
-      background-color: #4D6057;
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background-color: #3b5448;
-    }
-    
-    .btn-secondary {
-      background-color: #839c90;
-      color: white;
-    }
-    
-    .btn-secondary:hover {
-      background-color: #6d8a7d;
-    }
-    
-    .btn-danger {
-      background-color: #dc3545;
-      color: white;
-    }
-    
-    .btn-danger:hover {
-      background-color: #c82333;
-    }
-
-    /* Estilos para a câmera */
-    .camera-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: black;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 1001;
-    }
-    
-    #cameraVideo {
-      width: 100%;
-      max-width: 500px;
-      background: black;
-    }
-    
-    .camera-controls {
-      position: fixed;
-      bottom: 20px;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      z-index: 1002;
-    }
-    
-    .camera-btn {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(255,255,255,0.2);
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    #captureBtn {
-      background: #fff;
-      color: #333;
-    }
-    
-    #closeCameraBtn {
-      background: #dc3545;
-    }
-    
-    #flipCameraBtn {
-      background: rgba(255,255,255,0.2);
-    }
-    
-    #cameraCanvas {
-      display: none;
-    }
-
-    /* Modal de nome do exame */
-    .exam-name-dialog {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      z-index: 1003;
-      width: 90%;
-      max-width: 400px;
-      display: none;
-    }
-    
-    .exam-name-dialog h3 {
-      margin-top: 0;
-      color: #4D6057;
-    }
-    
-    .exam-name-dialog input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    
-    .exam-name-dialog-buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    /* Estilos para exames */
-    .exames-container {
-      margin-top: 20px;
-      border: 1px solid #e9ecef;
-      padding: 20px;
-      border-radius: 8px;
-      background-color: #f8f9fa;
-    }
-    
-    .exames-header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      gap: 10px;
-    }
-    
-    .exames-title {
-      font-size: 18px;
-      font-weight: bold;
-      color: #4D6057;
-      margin: 0;
-    }
-    
-    .exames-actions {
-      display: flex;
-      gap: 10px;
-    }
-    
-    .exame-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px;
-      margin: 10px 0;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-    }
-    
-    .exame-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .exame-info {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      flex: 1;
-    }
-    
-    .exame-thumbnail {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-      cursor: pointer;
-    }
-    
-    .exame-details {
-      flex: 1;
-    }
-    
-    .exame-name {
-      font-weight: 500;
-      margin-bottom: 5px;
-    }
-    
-    .exame-date {
-      font-size: 12px;
-      color: #666;
-    }
-    
-    .exame-actions {
-      display: flex;
-      gap: 8px;
-    }
-    
-    .exame-action-btn {
-      background: none;
-      border: none;
-      color: #4D6057;
-      cursor: pointer;
-      font-size: 16px;
-      transition: color 0.2s;
-    }
-    
-    .exame-action-btn:hover {
-      color: #3b5448;
-    }
-    
     @media (max-width: 600px) {
       #userDetailTabs {
         grid-template-columns: 1fr;
@@ -880,7 +442,7 @@
       
       .detail-tab {
         font-size: 13px;
-        padding: 10px;
+        padding: 8px;
       }
       
       .compact-form {
@@ -893,23 +455,6 @@
       
       .medical-search {
         width: 90%;
-      }
-      
-      .exame-info {
-        gap: 10px;
-      }
-      
-      .exame-thumbnail {
-        width: 50px;
-        height: 50px;
-      }
-      
-      .exam-modal-actions {
-        flex-direction: column;
-      }
-      
-      .action-btn {
-        width: 100%;
       }
     }
   </style>
@@ -947,7 +492,7 @@
     </div>
   </div>
 
-  <!-- Tela de Geração de QR Code -->
+  <!-- Tela de Geração de QR Code - Reduzida -->
   <div id="qrCodeScreen" class="container">
     <h2>Gerar Novo Registro</h2>
     <form id="qrCodeForm">
@@ -959,7 +504,7 @@
       
       <div id="qrCodeContainer">
         <canvas id="qrCanvas"></canvas>
-        <p style="margin-top: 10px;">Escaneie este QR code para cadastrar automaticamente</p>
+        <p>Escaneie este QR code para cadastrar automaticamente</p>
       </div>
       
       <div class="medical-buttons">
@@ -979,7 +524,6 @@
       <div class="detail-tab" data-tab="detail-medicamentos">Medicamentos</div>
       <div class="detail-tab" data-tab="detail-anotacoes">Anotações</div>
       <div class="detail-tab" data-tab="detail-monitoramento">Monitoramento</div>
-      <div class="detail-tab" data-tab="detail-exames">Exames</div>
     </div>
     
     <div class="scrollable-detail">
@@ -991,92 +535,6 @@
       <button id="saveUserBtn" class="btn" style="display: none;" onclick="saveUserChanges()">Salvar</button>
       <button class="btn btn-danger" onclick="deleteUser()">Excluir Usuário</button>
       <button onclick="closeUserDetail()" class="btn">Voltar</button>
-    </div>
-  </div>
-
-  <!-- Modal para visualização de exames -->
-  <div id="examePreviewModal">
-    <button id="closePreviewBtn"><i class="fas fa-times"></i></button>
-    <img id="examePreviewImage" src="" alt="Visualização do Exame">
-  </div>
-  
-  <!-- Modal para upload/tirar foto de exames -->
-  <div id="examModal" class="exam-modal">
-    <h3>Adicionar Exame</h3>
-    <p>Escolha como deseja adicionar o exame:</p>
-    <div class="exam-modal-actions">
-      <button id="takePhotoBtn" class="action-btn btn-primary">
-        <i class="fas fa-camera"></i> Tirar Foto
-      </button>
-      <button id="uploadPhotoBtn" class="action-btn btn-secondary">
-        <i class="fas fa-upload"></i> Upload
-      </button>
-    </div>
-    <button id="closeExamModalBtn" class="action-btn btn-danger" style="margin-top: 10px;">
-      <i class="fas fa-times"></i> Cancelar
-    </button>
-  </div>
-
-  <!-- Modal de Prévia da Foto -->
-  <div id="photoPreviewModal" class="exam-modal" style="display: none;">
-    <h3>Prévia do Exame</h3>
-    <div class="photo-carousel" id="photoCarousel"></div>
-    <div class="exam-modal-actions">
-      <button id="addMorePhotosBtn" class="action-btn btn-secondary">
-        <i class="fas fa-plus"></i> Adicionar Mais Fotos
-      </button>
-      <button id="confirmPhotoBtn" class="action-btn btn-primary">
-        <i class="fas fa-check"></i> Confirmar
-      </button>
-    </div>
-  </div>
-
-  <!-- Modal de Visualização de Fotos -->
-  <div id="photoViewerModal" class="photo-viewer-modal">
-    <div class="photo-viewer-container">
-      <button id="photoViewerClose" class="photo-viewer-close">
-        <i class="fas fa-times"></i>
-      </button>
-      <div class="photo-viewer-main">
-        <img id="photoViewerImage" src="" alt="Visualização da Foto">
-      </div>
-      <div class="photo-viewer-thumbnails" id="photoViewerThumbnails"></div>
-      <button id="photoViewerPrev" class="photo-viewer-nav photo-viewer-prev">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <button id="photoViewerNext" class="photo-viewer-nav photo-viewer-next">
-        <i class="fas fa-chevron-right"></i>
-      </button>
-    </div>
-  </div>
-
-  <!-- Input oculto para upload de arquivos -->
-  <input type="file" id="examFileInput" accept="image/*" multiple style="display: none;">
-
-  <!-- Elementos da câmera para exames -->
-  <div class="camera-container" id="cameraContainer">
-    <video id="cameraVideo" autoplay playsinline></video>
-    <canvas id="cameraCanvas"></canvas>
-    
-    <div class="camera-controls">
-      <button id="closeCameraBtn" class="camera-btn">
-        <i class="fas fa-times"></i>
-      </button>
-      <button id="captureBtn" class="camera-btn">
-        <i class="fas fa-camera"></i>
-      </button>
-      <button id="flipCameraBtn" class="camera-btn">
-        <i class="fas fa-sync-alt"></i>
-      </button>
-    </div>
-  </div>
-  
-  <div class="exam-name-dialog" id="examNameDialog">
-    <h3>Nome do Exame</h3>
-    <input type="text" id="examNameInput" placeholder="Digite o nome do exame">
-    <div class="exam-name-dialog-buttons">
-      <button id="cancelExamNameBtn" class="btn btn-danger">Cancelar</button>
-      <button id="saveExamNameBtn" class="btn">Salvar</button>
     </div>
   </div>
 
@@ -1126,342 +584,10 @@
     let currentEditingUser = null;
     let isEditing = false;
     let currentUserData = null;
-    let examesUnsubscribe = null;
-    let cameraStream = null;
-    let usingFrontCamera = false;
-    let capturedPhotos = [];
-    let currentPhotoIndex = 0;
     
     function formatDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-    }
-
-    async function loadUserExames(username) {
-      try {
-        const examesRef = db.collection('exames').where('pacienteId', '==', username);
-        const querySnapshot = await examesRef.get();
-        
-        const examesContainer = document.createElement('div');
-        examesContainer.className = 'exames-container';
-        
-        if (querySnapshot.empty) {
-          examesContainer.innerHTML = '<p style="text-align: center; color: #666;">Nenhum exame cadastrado para este paciente.</p>';
-        } else {
-          const exames = [];
-          querySnapshot.forEach(doc => {
-            exames.push({ id: doc.id, ...doc.data() });
-          });
-          
-          // Ordena por data (mais recente primeiro)
-          exames.sort((a, b) => new Date(b.data) - new Date(a.data));
-          
-          exames.forEach(exame => {
-            const exameItem = document.createElement('div');
-            exameItem.className = 'exame-item';
-            exameItem.innerHTML = `
-              <div class="exame-info">
-                <img src="${exame.url[0]}" alt="Exame" class="exame-thumbnail" 
-                     onclick="showExameAlbum('${exame.id}')">
-                <div class="exame-details">
-                  <div class="exame-name">${exame.descricao || 'Exame médico'}</div>
-                  <div class="exame-date">${formatDate(exame.data)}</div>
-                </div>
-              </div>
-              <div class="exame-actions">
-                <button class="exame-action-btn" onclick="deleteExame('${exame.id}')" title="Excluir exame">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            `;
-            examesContainer.appendChild(exameItem);
-          });
-        }
-        
-        const detailContent = document.getElementById('userDetailContent');
-        let examesTab = document.getElementById('detail-exames');
-        
-        if (!examesTab) {
-          examesTab = document.createElement('div');
-          examesTab.className = 'detail-tab-content';
-          examesTab.id = 'detail-exames';
-          detailContent.appendChild(examesTab);
-        }
-        
-        examesTab.innerHTML = '';
-        examesTab.appendChild(examesContainer);
-        
-      } catch (error) {
-        console.error('Erro ao carregar exames:', error);
-        showPopup('Erro ao carregar exames do paciente!', true);
-      }
-    }
-
-    async function showExameAlbum(exameId) {
-      try {
-        const doc = await db.collection('exames').doc(exameId).get();
-        if (!doc.exists) return;
-        
-        const exame = doc.data();
-        const modal = document.getElementById('photoViewerModal');
-        const mainImg = document.getElementById('photoViewerImage');
-        const thumbnailsContainer = document.getElementById('photoViewerThumbnails');
-        
-        // Limpa thumbnails anteriores
-        thumbnailsContainer.innerHTML = '';
-        
-        // Adiciona todas as fotos do exame
-        exame.url.forEach((url, index) => {
-          const thumbnail = document.createElement('img');
-          thumbnail.src = url;
-          thumbnail.className = 'photo-viewer-thumbnail' + (index === 0 ? ' active' : '');
-          thumbnail.onclick = () => {
-            currentPhotoIndex = index;
-            mainImg.src = url;
-            updateThumbnailSelection();
-          };
-          thumbnailsContainer.appendChild(thumbnail);
-        });
-        
-        // Mostra a primeira imagem
-        if (exame.url.length > 0) {
-          currentPhotoIndex = 0;
-          mainImg.src = exame.url[0];
-          updateThumbnailSelection();
-        }
-        
-        modal.style.display = 'flex';
-        
-        // Configura botões de navegação
-        document.getElementById('photoViewerClose').onclick = () => {
-          modal.style.display = 'none';
-        };
-        
-        document.getElementById('photoViewerPrev').onclick = () => {
-          if (exame.url.length > 0) {
-            currentPhotoIndex = (currentPhotoIndex - 1 + exame.url.length) % exame.url.length;
-            mainImg.src = exame.url[currentPhotoIndex];
-            updateThumbnailSelection();
-          }
-        };
-        
-        document.getElementById('photoViewerNext').onclick = () => {
-          if (exame.url.length > 0) {
-            currentPhotoIndex = (currentPhotoIndex + 1) % exame.url.length;
-            mainImg.src = exame.url[currentPhotoIndex];
-            updateThumbnailSelection();
-          }
-        };
-        
-      } catch (error) {
-        console.error('Erro ao carregar álbum do exame:', error);
-        showPopup('Erro ao visualizar exame!', true);
-      }
-    }
-    
-    function updateThumbnailSelection() {
-      const thumbnails = document.querySelectorAll('.photo-viewer-thumbnail');
-      thumbnails.forEach((thumb, index) => {
-        if (index === currentPhotoIndex) {
-          thumb.classList.add('active');
-        } else {
-          thumb.classList.remove('active');
-        }
-      });
-    }
-
-    async function deleteExame(exameId) {
-      if(!confirm('Tem certeza que deseja excluir este exame permanentemente?')) return;
-      
-      try {
-        await db.collection('exames').doc(exameId).delete();
-        showPopup('Exame excluído com sucesso!');
-        
-        // Atualiza a lista de exames na tela do paciente
-        const username = localStorage.getItem('currentUser');
-        if (username) {
-          loadUserExames(username);
-        }
-        
-        // Atualiza também na tela de detalhes do médico, se estiver aberta
-        if (document.getElementById('userDetailScreen').style.display === 'block') {
-          loadUserExames(currentEditingUser);
-        }
-      } catch (error) {
-        console.error('Erro ao excluir exame:', error);
-        showPopup('Erro ao excluir exame!', true);
-      }
-    }
-
-    function openExamModal() {
-      document.getElementById('examModal').style.display = 'block';
-    }
-
-    function closeExamModal() {
-      document.getElementById('examModal').style.display = 'none';
-    }
-
-    async function startCamera(facingMode = 'environment') {
-      try {
-        stopCamera(); // Para qualquer stream existente
-        
-        const constraints = {
-          video: { 
-            facingMode: facingMode,
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        };
-        
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        const video = document.getElementById('cameraVideo');
-        
-        video.srcObject = stream;
-        cameraStream = stream;
-        document.getElementById('cameraContainer').style.display = 'flex';
-        
-        video.onloadedmetadata = () => {
-          video.play();
-        };
-        
-      } catch (error) {
-        console.error('Erro ao acessar câmera:', error);
-        showPopup('Não foi possível acessar a câmera. Verifique as permissões.', true);
-      }
-    }
-    
-    function stopCamera() {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
-      }
-      document.getElementById('cameraContainer').style.display = 'none';
-    }
-    
-    function capturePhoto() {
-      const video = document.getElementById('cameraVideo');
-      const canvas = document.getElementById('cameraCanvas');
-      const context = canvas.getContext('2d');
-      
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      
-      const photoUrl = canvas.toDataURL('image/jpeg', 0.8);
-      capturedPhotos.push(photoUrl);
-      showPhotoPreview();
-    }
-    
-    function showPhotoPreview() {
-      const previewModal = document.getElementById('photoPreviewModal');
-      const carousel = document.getElementById('photoCarousel');
-      
-      carousel.innerHTML = '';
-      
-      capturedPhotos.forEach((photoUrl, index) => {
-        const photoItem = document.createElement('div');
-        photoItem.className = 'photo-carousel-item';
-        photoItem.innerHTML = `
-          <img src="${photoUrl}" class="photo-carousel-img">
-          <button class="photo-carousel-delete" onclick="removePhoto(${index})">
-            <i class="fas fa-times"></i>
-          </button>
-        `;
-        carousel.appendChild(photoItem);
-      });
-      
-      previewModal.style.display = 'block';
-    }
-    
-    function removePhoto(index) {
-      capturedPhotos.splice(index, 1);
-      if (capturedPhotos.length === 0) {
-        document.getElementById('photoPreviewModal').style.display = 'none';
-        startCamera(usingFrontCamera ? 'user' : 'environment');
-      } else {
-        showPhotoPreview();
-      }
-    }
-    
-    function confirmPhotos() {
-      document.getElementById('photoPreviewModal').style.display = 'none';
-      document.getElementById('examNameDialog').style.display = 'block';
-      document.getElementById('examNameInput').focus();
-    }
-    
-    function addMorePhotos() {
-      document.getElementById('photoPreviewModal').style.display = 'none';
-      startCamera(usingFrontCamera ? 'user' : 'environment');
-    }
-    
-    function flipCamera() {
-      usingFrontCamera = !usingFrontCamera;
-      startCamera(usingFrontCamera ? 'user' : 'environment');
-    }
-
-    async function takeExamPhoto() {
-      closeExamModal();
-      capturedPhotos = []; // Resetar fotos capturadas
-      startCamera('environment'); // Usa a câmera traseira por padrão
-    }
-
-    async function handleFileUpload(event) {
-      closeExamModal();
-      const files = Array.from(event.target.files);
-      if (files.length === 0) return;
-      
-      capturedPhotos = []; // Resetar fotos capturadas
-      
-      const readers = files.map(file => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            capturedPhotos.push(e.target.result);
-            resolve();
-          };
-          reader.readAsDataURL(file);
-        });
-      });
-      
-      await Promise.all(readers);
-      showPhotoPreview();
-      event.target.value = ''; // Limpa o input para permitir novo upload dos mesmos arquivos
-    }
-
-    async function uploadExamToFirebase(photos, description) {
-      const username = localStorage.getItem('currentUser');
-      if (!username) {
-        showPopup('Nenhum usuário selecionado!', true);
-        return;
-      }
-      
-      try {
-        showPopup('Salvando exame...');
-        
-        const timestamp = new Date().toISOString();
-        
-        // Salva no Firestore
-        await db.collection('exames').add({
-          pacienteId: username,
-          url: photos,
-          descricao: description || '',
-          data: timestamp
-        });
-        
-        showPopup('Exame salvo com sucesso!');
-        capturedPhotos = []; // Limpar fotos capturadas
-        
-        // Atualiza a lista de exames
-        loadUserExames(username);
-        
-        // Atualiza também na tela de detalhes do médico, se estiver aberta
-        if (document.getElementById('userDetailScreen').style.display === 'block') {
-          loadUserExames(username);
-        }
-      } catch (error) {
-        console.error('Erro ao salvar exame:', error);
-        showPopup('Erro ao salvar exame!', true);
-      }
     }
 
     document.getElementById('medLoginBtn').addEventListener('click', () => {
@@ -1551,9 +677,6 @@
               renderUserDetail(currentUserData);
             }
           });
-          
-          // Carrega os exames do paciente
-          loadUserExames(userId);
         }
       } catch (error) {
         console.error('Erro ao carregar detalhes:', error);
@@ -1728,18 +851,16 @@
           const targetTab = tab.dataset.tab;
           document.getElementById(targetTab).classList.add('active');
           currentDetailTab = targetTab;
-          
-          // Carrega os exames quando a aba é clicada
-          if (targetTab === 'detail-exames') {
-            loadUserExames(currentEditingUser);
-          }
         });
       });
 
-      const activeTab = document.querySelector(`.detail-tab[data-tab="${currentDetailTab}"]`);
-      if(activeTab) {
-        activeTab.classList.add('active');
-        document.getElementById(currentDetailTab).classList.add('active');
+      // Mantém a aba ativa mesmo durante a edição
+      if (currentDetailTab) {
+        const activeTab = document.querySelector(`.detail-tab[data-tab="${currentDetailTab}"]`);
+        if (activeTab) {
+          activeTab.classList.add('active');
+          document.getElementById(currentDetailTab).classList.add('active');
+        }
       }
     }
 
@@ -1869,20 +990,7 @@
     async function deleteUser() {
       if(confirm('Tem certeza que deseja excluir este usuário permanentemente?')) {
         try {
-          // Primeiro deleta todos os exames do usuário
-          const examesRef = db.collection('exames').where('pacienteId', '==', currentEditingUser);
-          const querySnapshot = await examesRef.get();
-          
-          const batch = db.batch();
-          querySnapshot.forEach(doc => {
-            batch.delete(doc.ref);
-          });
-          
-          await batch.commit();
-          
-          // Depois deleta o usuário do Firestore
           await db.collection('usuarios').doc(currentEditingUser).delete();
-          
           showPopup('Usuário excluído com sucesso!');
           closeUserDetail();
           loadMedicalAccess();
@@ -1968,48 +1076,6 @@
         showPopup('Erro ao excluir registro de monitoramento!', true);
       }
     }
-
-    // Event listeners para os controles da câmera
-    document.getElementById('captureBtn').addEventListener('click', capturePhoto);
-    document.getElementById('closeCameraBtn').addEventListener('click', stopCamera);
-    document.getElementById('flipCameraBtn').addEventListener('click', flipCamera);
-    
-    // Event listeners para o diálogo de nome do exame
-    document.getElementById('cancelExamNameBtn').addEventListener('click', () => {
-      document.getElementById('examNameDialog').style.display = 'none';
-      capturedPhotos = [];
-    });
-    
-    document.getElementById('saveExamNameBtn').addEventListener('click', async () => {
-      const examName = document.getElementById('examNameInput').value.trim();
-      if (!examName) {
-        alert('Por favor, digite um nome para o exame');
-        return;
-      }
-      
-      document.getElementById('examNameDialog').style.display = 'none';
-      document.getElementById('examNameInput').value = '';
-      
-      if (capturedPhotos.length > 0) {
-        await uploadExamToFirebase(capturedPhotos, examName);
-        stopCamera();
-      }
-    });
-
-    // Event listeners para o modal de prévia da foto
-    document.getElementById('addMorePhotosBtn').addEventListener('click', addMorePhotos);
-    document.getElementById('confirmPhotoBtn').addEventListener('click', confirmPhotos);
-
-    document.addEventListener('DOMContentLoaded', () => {
-      // Configura os botões de exames
-      document.getElementById('addExamBtn')?.addEventListener('click', openExamModal);
-      document.getElementById('takePhotoBtn').addEventListener('click', takeExamPhoto);
-      document.getElementById('uploadPhotoBtn').addEventListener('click', () => {
-        document.getElementById('examFileInput').click();
-      });
-      document.getElementById('closeExamModalBtn').addEventListener('click', closeExamModal);
-      document.getElementById('examFileInput').addEventListener('change', handleFileUpload);
-    });
 
     function showPopup(message, isError = false) {
       const popup = document.getElementById('popup');
