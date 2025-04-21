@@ -684,185 +684,185 @@
       }
     }
 
-    function renderUserDetail(userData) {
-      const detailContent = document.getElementById('userDetailContent');
-      detailContent.innerHTML = `
-        <div class="detail-tab-content active" id="detail-identificacao">
-          <div class="compact-form">
-            <div class="form-row">
-              <label>Nome:</label>
-              ${isEditing ? 
-                `<input type="text" class="edit-input" data-field="identificacao.nome" value="${userData.identificacao.nome}">` : 
-                `<span>${userData.identificacao.nome}</span>`}
-            </div>
-            <div class="form-row">
-              <label>Nascimento:</label>
-              ${isEditing ? 
-                `<input type="date" class="edit-input" data-field="identificacao.dataNascimento" value="${userData.identificacao.dataNascimento}">` : 
-                `<span>${userData.identificacao.dataNascimento}</span>`}
-            </div>
-            <div class="form-row">
-              <label>Contato:</label>
-              ${isEditing ? 
-                `<input type="tel" class="edit-input" data-field="identificacao.contato" value="${userData.identificacao.contato}">` : 
-                `<span>${userData.identificacao.contato}</span>`}
-            </div>
-            <div class="form-row">
-              <label>Contato de Emergência:</label>
-              ${isEditing ? 
-                `<input type="tel" class="edit-input" data-field="identificacao.contatoEmergencia" value="${userData.identificacao.contatoEmergencia || ''}">` : 
-                `<span>${userData.identificacao.contatoEmergencia || 'Não informado'}</span>`}
-            </div>
-            <div class="form-row">
-              <label>Peso:</label>
-              ${isEditing ? 
-                `<input type="number" class="edit-input" data-field="identificacao.peso" value="${userData.identificacao.peso}">` : 
-                `<span>${userData.identificacao.peso}</span>`}
-            </div>
-          </div>
+function renderUserDetail(userData) {
+  const detailContent = document.getElementById('userDetailContent');
+  detailContent.innerHTML = `
+    <div class="detail-tab-content" id="detail-identificacao">
+      <div class="compact-form">
+        <div class="form-row">
+          <label>Nome:</label>
+          ${isEditing ? 
+            `<input type="text" class="edit-input" data-field="identificacao.nome" value="${userData.identificacao.nome}">` : 
+            `<span>${userData.identificacao.nome}</span>`}
         </div>
-
-        <div class="detail-tab-content" id="detail-vacinacao">
-          ${userData.vacinacao.map((vacina, index) => `
-            <div class="vacina-form" data-index="${index}">
-              <div class="form-row">
-                <label>Vacina:</label>
-                ${isEditing ? 
-                  `<input type="text" class="edit-input" data-field="vacinacao[${index}].nomeVacina" value="${vacina.nomeVacina}">` : 
-                  `<span>${vacina.nomeVacina}</span>`}
-              </div>
-              <div class="form-row">
-                <label>Data:</label>
-                ${isEditing ? 
-                  `<input type="date" class="edit-input" data-field="vacinacao[${index}].dataAplicacao" value="${vacina.dataAplicacao}">` : 
-                  `<span>${vacina.dataAplicacao}</span>`}
-              </div>
-              <div class="form-row">
-                <label>Lote:</label>
-                ${isEditing ? 
-                  `<input type="text" class="edit-input" data-field="vacinacao[${index}].loteVacina" value="${vacina.loteVacina}">` : 
-                  `<span>${vacina.loteVacina}</span>`}
-              </div>
-              <div class="form-row">
-                <label>Observações:</label>
-                ${isEditing ? 
-                  `<textarea class="edit-input" data-field="vacinacao[${index}].observacoes">${vacina.observacoes}</textarea>` : 
-                  `<span>${vacina.observacoes}</span>`}
-              </div>
-              ${isEditing ? `<button class="delete-btn" onclick="this.closest('.vacina-form').remove()">Excluir</button>` : ''}
-            </div>
-          `).join('')}
-          ${isEditing ? `<button class="btn add-item-btn" onclick="addNewVacina()">+ Nova Vacina</button>` : ''}
+        <div class="form-row">
+          <label>Nascimento:</label>
+          ${isEditing ? 
+            `<input type="date" class="edit-input" data-field="identificacao.dataNascimento" value="${userData.identificacao.dataNascimento}">` : 
+            `<span>${userData.identificacao.dataNascimento}</span>`}
         </div>
-
-        <div class="detail-tab-content" id="detail-doencas">
-          <div class="compact-form">
-            <div class="form-row">
-              <label>Hipertensão:</label>
-              <input type="checkbox" ${userData.doencas.hipertensao ? 'checked' : ''} 
-                ${isEditing ? 'data-field="doencas.hipertensao"' : 'disabled'}>
-            </div>
-            <div class="form-row">
-              <label>Diabetes:</label>
-              <input type="checkbox" ${userData.doencas.diabetes ? 'checked' : ''} 
-                ${isEditing ? 'data-field="doencas.diabetes"' : 'disabled'}>
-            </div>
-            <div class="form-row">
-              <label>Cardiopatias:</label>
-              <input type="checkbox" ${userData.doencas.cardiopatias ? 'checked' : ''} 
-                ${isEditing ? 'data-field="doencas.cardiopatias"' : 'disabled'}>
-            </div>
-            <div class="form-row">
-              <label>Chagas:</label>
-              <input type="checkbox" ${userData.doencas.chagas ? 'checked' : ''} 
-                ${isEditing ? 'data-field="doencas.chagas"' : 'disabled'}>
-            </div>
-            <div class="form-row">
-              <label>Outras:</label>
-              ${isEditing ? 
-                `<input type="text" class="edit-input" data-field="doencas.outras" value="${userData.doencas.outras || ''}">` : 
-                `<span>${userData.doencas.outras || 'Nenhuma'}</span>`}
-            </div>
-          </div>
+        <div class="form-row">
+          <label>Contato:</label>
+          ${isEditing ? 
+            `<input type="tel" class="edit-input" data-field="identificacao.contato" value="${userData.identificacao.contato}">` : 
+            `<span>${userData.identificacao.contato}</span>`}
         </div>
-
-        <div class="detail-tab-content" id="detail-medicamentos">
-          ${userData.medicamentos.map((med, index) => `
-            <div class="medicamento-form" data-index="${index}">
-              <div class="form-row">
-                <label>Medicamento:</label>
-                ${isEditing ? 
-                  `<input type="text" class="edit-input" data-field="medicamentos[${index}].nome" value="${med.nome}">` : 
-                  `<span>${med.nome}</span>`}
-              </div>
-              <div class="form-row">
-                <label>Dose:</label>
-                ${isEditing ? 
-                  `<input type="text" class="edit-input" data-field="medicamentos[${index}].dose" value="${med.dose}">` : 
-                  `<span>${med.dose}</span>`}
-              </div>
-              <div class="form-row">
-                <label>Posologia:</label>
-                ${isEditing ? 
-                  `<input type="text" class="edit-input" data-field="medicamentos[${index}].posologia" value="${med.posologia}">` : 
-                  `<span>${med.posologia}</span>`}
-              </div>
-              <div class="form-row">
-                <label>Horário:</label>
-                ${isEditing ? 
-                  `<input type="time" class="edit-input" data-field="medicamentos[${index}].horario" value="${med.horario}">` : 
-                  `<span>${med.horario}</span>`}
-              </div>
-              ${isEditing ? `<button class="delete-btn" onclick="this.closest('.medicamento-form').remove()">Excluir</button>` : ''}
-            </div>
-          `).join('')}
-          ${isEditing ? `<button class="btn add-item-btn" onclick="addNewMedicamento()">+ Novo Medicamento</button>` : ''}
+        <div class="form-row">
+          <label>Contato de Emergência:</label>
+          ${isEditing ? 
+            `<input type="tel" class="edit-input" data-field="identificacao.contatoEmergencia" value="${userData.identificacao.contatoEmergencia || ''}">` : 
+            `<span>${userData.identificacao.contatoEmergencia || 'Não informado'}</span>`}
         </div>
+        <div class="form-row">
+          <label>Peso:</label>
+          ${isEditing ? 
+            `<input type="number" class="edit-input" data-field="identificacao.peso" value="${userData.identificacao.peso}">` : 
+            `<span>${userData.identificacao.peso}</span>`}
+        </div>
+      </div>
+    </div>
 
-        <div class="detail-tab-content" id="detail-anotacoes">
+    <div class="detail-tab-content" id="detail-vacinacao">
+      ${userData.vacinacao.map((vacina, index) => `
+        <div class="vacina-form" data-index="${index}">
           <div class="form-row">
+            <label>Vacina:</label>
             ${isEditing ? 
-              `<textarea class="edit-input" data-field="anotacoes">${userData.anotacoes || ''}</textarea>` : 
-              `<span>${userData.anotacoes || 'Nenhuma anotação'}</span>`}
+              `<input type="text" class="edit-input" data-field="vacinacao[${index}].nomeVacina" value="${vacina.nomeVacina}">` : 
+              `<span>${vacina.nomeVacina}</span>`}
           </div>
+          <div class="form-row">
+            <label>Data:</label>
+            ${isEditing ? 
+              `<input type="date" class="edit-input" data-field="vacinacao[${index}].dataAplicacao" value="${vacina.dataAplicacao}">` : 
+              `<span>${vacina.dataAplicacao}</span>`}
+          </div>
+          <div class="form-row">
+            <label>Lote:</label>
+            ${isEditing ? 
+              `<input type="text" class="edit-input" data-field="vacinacao[${index}].loteVacina" value="${vacina.loteVacina}">` : 
+              `<span>${vacina.loteVacina}</span>`}
+          </div>
+          <div class="form-row">
+            <label>Observações:</label>
+            ${isEditing ? 
+              `<textarea class="edit-input" data-field="vacinacao[${index}].observacoes">${vacina.observacoes}</textarea>` : 
+              `<span>${vacina.observacoes}</span>`}
+          </div>
+          ${isEditing ? `<button class="delete-btn" onclick="this.closest('.vacina-form').remove()">Excluir</button>` : ''}
         </div>
+      `).join('')}
+      ${isEditing ? `<button class="btn add-item-btn" onclick="addNewVacina()">+ Nova Vacina</button>` : ''}
+    </div>
 
-        <div class="detail-tab-content" id="detail-monitoramento">
-          ${(userData.monitoramento || []).map((entry, index) => `
-            <div class="monitoramento-item">
-              <div>
-                <strong>PA:</strong> ${entry.pa}<br>
-                <strong>Glicemia:</strong> ${entry.glicemia}<br>
-                <em>${new Date(entry.timestamp).toLocaleString()}</em>
-              </div>
-              <button class="delete-monitoramento-btn" onclick="deleteMonitoramentoEntry('${currentEditingUser}', '${entry.timestamp}')">
-                Excluir
-              </button>
-            </div>
-          `).join('')}
+    <div class="detail-tab-content" id="detail-doencas">
+      <div class="compact-form">
+        <div class="form-row">
+          <label>Hipertensão:</label>
+          <input type="checkbox" ${userData.doencas.hipertensao ? 'checked' : ''} 
+            ${isEditing ? 'data-field="doencas.hipertensao"' : 'disabled'}>
         </div>
-      `;
+        <div class="form-row">
+          <label>Diabetes:</label>
+          <input type="checkbox" ${userData.doencas.diabetes ? 'checked' : ''} 
+            ${isEditing ? 'data-field="doencas.diabetes"' : 'disabled'}>
+        </div>
+        <div class="form-row">
+          <label>Cardiopatias:</label>
+          <input type="checkbox" ${userData.doencas.cardiopatias ? 'checked' : ''} 
+            ${isEditing ? 'data-field="doencas.cardiopatias"' : 'disabled'}>
+        </div>
+        <div class="form-row">
+          <label>Chagas:</label>
+          <input type="checkbox" ${userData.doencas.chagas ? 'checked' : ''} 
+            ${isEditing ? 'data-field="doencas.chagas"' : 'disabled'}>
+        </div>
+        <div class="form-row">
+          <label>Outras:</label>
+          ${isEditing ? 
+            `<input type="text" class="edit-input" data-field="doencas.outras" value="${userData.doencas.outras || ''}">` : 
+            `<span>${userData.doencas.outras || 'Nenhuma'}</span>`}
+        </div>
+      </div>
+    </div>
 
-      document.querySelectorAll('.detail-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-          document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
-          document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
-          tab.classList.add('active');
-          const targetTab = tab.dataset.tab;
-          document.getElementById(targetTab).classList.add('active');
-          currentDetailTab = targetTab;
-        });
-      });
+    <div class="detail-tab-content" id="detail-medicamentos">
+      ${userData.medicamentos.map((med, index) => `
+        <div class="medicamento-form" data-index="${index}">
+          <div class="form-row">
+            <label>Medicamento:</label>
+            ${isEditing ? 
+              `<input type="text" class="edit-input" data-field="medicamentos[${index}].nome" value="${med.nome}">` : 
+              `<span>${med.nome}</span>`}
+          </div>
+          <div class="form-row">
+            <label>Dose:</label>
+            ${isEditing ? 
+              `<input type="text" class="edit-input" data-field="medicamentos[${index}].dose" value="${med.dose}">` : 
+              `<span>${med.dose}</span>`}
+          </div>
+          <div class="form-row">
+            <label>Posologia:</label>
+            ${isEditing ? 
+              `<input type="text" class="edit-input" data-field="medicamentos[${index}].posologia" value="${med.posologia}">` : 
+              `<span>${med.posologia}</span>`}
+          </div>
+          <div class="form-row">
+            <label>Horário:</label>
+            ${isEditing ? 
+              `<input type="time" class="edit-input" data-field="medicamentos[${index}].horario" value="${med.horario}">` : 
+              `<span>${med.horario}</span>`}
+          </div>
+          ${isEditing ? `<button class="delete-btn" onclick="this.closest('.medicamento-form').remove()">Excluir</button>` : ''}
+        </div>
+      `).join('')}
+      ${isEditing ? `<button class="btn add-item-btn" onclick="addNewMedicamento()">+ Novo Medicamento</button>` : ''}
+    </div>
 
-      // Mantém a aba ativa mesmo durante a edição
-      if (currentDetailTab) {
-        const activeTab = document.querySelector(`.detail-tab[data-tab="${currentDetailTab}"]`);
-        if (activeTab) {
-          activeTab.classList.add('active');
-          document.getElementById(currentDetailTab).classList.add('active');
-        }
-      }
+    <div class="detail-tab-content" id="detail-anotacoes">
+      <div class="form-row">
+        ${isEditing ? 
+          `<textarea class="edit-input" data-field="anotacoes">${userData.anotacoes || ''}</textarea>` : 
+          `<span>${userData.anotacoes || 'Nenhuma anotação'}</span>`}
+      </div>
+    </div>
+
+    <div class="detail-tab-content" id="detail-monitoramento">
+      ${(userData.monitoramento || []).map((entry, index) => `
+        <div class="monitoramento-item">
+          <div>
+            <strong>PA:</strong> ${entry.pa}<br>
+            <strong>Glicemia:</strong> ${entry.glicemia}<br>
+            <em>${new Date(entry.timestamp).toLocaleString()}</em>
+          </div>
+          <button class="delete-monitoramento-btn" onclick="deleteMonitoramentoEntry('${currentEditingUser}', '${entry.timestamp}')">
+            Excluir
+          </button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  document.querySelectorAll('.detail-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      const targetTab = tab.dataset.tab;
+      document.getElementById(targetTab).classList.add('active');
+      currentDetailTab = targetTab;
+    });
+  });
+
+  // Mantém a aba ativa mesmo durante a edição
+  if (currentDetailTab) {
+    const activeTab = document.querySelector(`.detail-tab[data-tab="${currentDetailTab}"]`);
+    if (activeTab) {
+      activeTab.classList.add('active');
+      document.getElementById(currentDetailTab).classList.add('active');
     }
+  }
+}
 
     function addNewMedicamento() {
       const container = document.querySelector('#detail-medicamentos');
