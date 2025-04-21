@@ -472,11 +472,11 @@
   </div>
 
   <!-- Tela de Login Médico -->
-  <div id="medicalLoginScreen" class="container">
-    <h2>Acesso Médico</h2>
+  <div id="medicalLoginScreen" class="container text-left">
+    <h2 class="text-left">Acesso Médico</h2>
     <input type="text" id="medUsername" placeholder="Usuário" class="medical-search">
     <input type="password" id="medPassword" placeholder="Senha" class="medical-search">
-    <div class="flex items-center justify-start mt-2 w-80 mx-auto md:mx-0">
+    <div class="flex items-center justify-start mt-2 w-80 mx-auto md:mx-0 text-left">
       <input type="checkbox" id="stayLoggedIn" class="mr-2">
       <label for="stayLoggedIn" class="text-gray-700 select-none">Quero continuar logado</label>
     </div>
@@ -611,13 +611,33 @@
       if(username === 'admin' && password === 'admin123') {
         if (stayLoggedInCheckbox) {
           localStorage.setItem('stayLoggedIn', 'true');
+          localStorage.setItem('medUsername', username);
+          localStorage.setItem('medPassword', password);
         } else {
           localStorage.removeItem('stayLoggedIn');
+          localStorage.removeItem('medUsername');
+          localStorage.removeItem('medPassword');
         }
         document.getElementById('medicalLoginScreen').style.display = 'none';
         loadMedicalAccess();
       } else {
         alert('Credenciais inválidas!');
+      }
+    });
+
+    // On page load, if credentials are stored, prefill and check the checkbox
+    window.addEventListener('load', () => {
+      const stayLoggedIn = localStorage.getItem('stayLoggedIn');
+      if (stayLoggedIn === 'true') {
+        const storedUsername = localStorage.getItem('medUsername');
+        const storedPassword = localStorage.getItem('medPassword');
+        if (storedUsername && storedPassword) {
+          document.getElementById('medUsername').value = storedUsername;
+          document.getElementById('medPassword').value = storedPassword;
+          document.getElementById('stayLoggedIn').checked = true;
+          document.getElementById('medicalLoginScreen').style.display = 'none';
+          loadMedicalAccess();
+        }
       }
     });
 
@@ -1103,4 +1123,30 @@ function renderUserDetail(userData) {
         }
       } catch (error) {
         console.error('Erro ao excluir registro de monitoramento:', error);
-       
+        showPopup('Erro ao excluir registro de monitoramento!', true);
+      }
+    }
+
+    function showPopup(message, isError = false) {
+      const popup = document.getElementById('popup');
+      popup.textContent = message;
+      popup.style.backgroundColor = isError ? '#dc3545' : '#3b5448';
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 3000);
+    }
+
+    // Registrar o Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('Service Worker registrado:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Falha no registro:', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
