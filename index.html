@@ -594,16 +594,42 @@
       return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
     }
 
+    // Check if user is already logged in on page load
+    window.addEventListener('load', () => {
+      const stayLoggedIn = localStorage.getItem('stayLoggedIn');
+      if (stayLoggedIn === 'true') {
+        document.getElementById('medicalLoginScreen').style.display = 'none';
+        loadMedicalAccess();
+      }
+    });
+
     document.getElementById('medLoginBtn').addEventListener('click', () => {
       const username = document.getElementById('medUsername').value;
       const password = document.getElementById('medPassword').value;
+      const stayLoggedInCheckbox = document.getElementById('stayLoggedIn').checked;
       
       if(username === 'admin' && password === 'admin123') {
+        if (stayLoggedInCheckbox) {
+          localStorage.setItem('stayLoggedIn', 'true');
+        } else {
+          localStorage.removeItem('stayLoggedIn');
+        }
         document.getElementById('medicalLoginScreen').style.display = 'none';
         loadMedicalAccess();
       } else {
         alert('Credenciais inválidas!');
       }
+    });
+
+    // Clear login persistence on logout
+    document.getElementById('medLogoutBtn').addEventListener('click', () => {
+      if (medicalAccessUnsubscribe) {
+        medicalAccessUnsubscribe();
+        medicalAccessUnsubscribe = null;
+      }
+      localStorage.removeItem('stayLoggedIn');
+      document.getElementById('medicalAccessScreen').style.display = 'none';
+      document.getElementById('medicalLoginScreen').style.display = 'block';
     });
 
     async function loadMedicalAccess() {
@@ -1077,30 +1103,4 @@ function renderUserDetail(userData) {
         }
       } catch (error) {
         console.error('Erro ao excluir registro de monitoramento:', error);
-        showPopup('Erro ao excluir registro de monitoramento!', true);
-      }
-    }
-
-    function showPopup(message, isError = false) {
-      const popup = document.getElementById('popup');
-      popup.textContent = message;
-      popup.style.backgroundColor = isError ? '#dc3545' : '#3b5448';
-      popup.classList.add('show');
-      setTimeout(() => popup.classList.remove('show'), 3000);
-    }
-
-    // Registrar o Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(registration => {
-            console.log('Service Worker registrado:', registration.scope);
-          })
-          .catch(error => {
-            console.log('Falha no registro:', error);
-          });
-      });
-    }
-  </script>
-</body>
-</html>
+       
