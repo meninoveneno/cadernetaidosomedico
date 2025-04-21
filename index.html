@@ -472,14 +472,10 @@
   </div>
 
   <!-- Tela de Login Médico -->
-  <div id="medicalLoginScreen" class="container text-left">
-    <h2 class="text-left">Acesso Médico</h2>
+  <div id="medicalLoginScreen" class="container">
+    <h2>Acesso Médico</h2>
     <input type="text" id="medUsername" placeholder="Usuário" class="medical-search">
     <input type="password" id="medPassword" placeholder="Senha" class="medical-search">
-    <div class="flex items-center justify-start mt-2 w-80 mx-auto md:mx-0 text-left">
-      <input type="checkbox" id="stayLoggedIn" class="mr-2">
-      <label for="stayLoggedIn" class="text-gray-700 select-none">Quero continuar logado</label>
-    </div>
     <div class="medical-buttons">
       <button id="medLoginBtn" class="btn">Entrar</button>
     </div>
@@ -594,62 +590,16 @@
       return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
     }
 
-    // Check if user is already logged in on page load
-    window.addEventListener('load', () => {
-      const stayLoggedIn = localStorage.getItem('stayLoggedIn');
-      if (stayLoggedIn === 'true') {
-        document.getElementById('medicalLoginScreen').style.display = 'none';
-        loadMedicalAccess();
-      }
-    });
-
     document.getElementById('medLoginBtn').addEventListener('click', () => {
       const username = document.getElementById('medUsername').value;
       const password = document.getElementById('medPassword').value;
-      const stayLoggedInCheckbox = document.getElementById('stayLoggedIn').checked;
       
       if(username === 'admin' && password === 'admin123') {
-        if (stayLoggedInCheckbox) {
-          localStorage.setItem('stayLoggedIn', 'true');
-          localStorage.setItem('medUsername', username);
-          localStorage.setItem('medPassword', password);
-        } else {
-          localStorage.removeItem('stayLoggedIn');
-          localStorage.removeItem('medUsername');
-          localStorage.removeItem('medPassword');
-        }
         document.getElementById('medicalLoginScreen').style.display = 'none';
         loadMedicalAccess();
       } else {
         alert('Credenciais inválidas!');
       }
-    });
-
-    // On page load, if credentials are stored, prefill and check the checkbox
-    window.addEventListener('load', () => {
-      const stayLoggedIn = localStorage.getItem('stayLoggedIn');
-      if (stayLoggedIn === 'true') {
-        const storedUsername = localStorage.getItem('medUsername');
-        const storedPassword = localStorage.getItem('medPassword');
-        if (storedUsername && storedPassword) {
-          document.getElementById('medUsername').value = storedUsername;
-          document.getElementById('medPassword').value = storedPassword;
-          document.getElementById('stayLoggedIn').checked = true;
-          document.getElementById('medicalLoginScreen').style.display = 'none';
-          loadMedicalAccess();
-        }
-      }
-    });
-
-    // Clear login persistence on logout
-    document.getElementById('medLogoutBtn').addEventListener('click', () => {
-      if (medicalAccessUnsubscribe) {
-        medicalAccessUnsubscribe();
-        medicalAccessUnsubscribe = null;
-      }
-      localStorage.removeItem('stayLoggedIn');
-      document.getElementById('medicalAccessScreen').style.display = 'none';
-      document.getElementById('medicalLoginScreen').style.display = 'block';
     });
 
     async function loadMedicalAccess() {
