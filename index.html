@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="manifest" href="/manifest.json">
-  <title>Acesso Médico - Caderneta Idoso</title>
+  <title>Acesso Médico</title>
   <link rel="icon" type="image/png" href="https://i.imgur.com/z8sFZHC.png">
   <link rel="apple-touch-icon" href="https://i.imgur.com/z8sFZHC.png">
   <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js"></script>
@@ -1066,21 +1066,26 @@
       container.insertBefore(newVac, container.lastElementChild);
     }
 
-    function toggleEditMode() {
-      isEditing = !isEditing;
-      document.getElementById('editUserBtn').style.display = isEditing ? 'none' : 'block';
-      document.getElementById('saveUserBtn').style.display = isEditing ? 'block' : 'none';
-      
-      // Mantém a aba atual ativa ao entrar no modo de edição
-      const activeTab = document.querySelector(`.detail-tab[data-tab="${currentDetailTab}"]`);
-      if (activeTab) {
-        renderUserDetail(currentUserData);
-        activeTab.classList.add('active');
-        document.getElementById(currentDetailTab).classList.add('active');
-      } else {
-        renderUserDetail(currentUserData);
-      }
-    }
+function toggleEditMode() {
+  isEditing = !isEditing;
+  document.getElementById('editUserBtn').style.display = isEditing ? 'none' : 'block';
+  document.getElementById('saveUserBtn').style.display = isEditing ? 'block' : 'none';
+  
+  renderUserDetail(currentUserData);
+
+  // Reapply active tab and content after re-rendering
+  document.querySelectorAll('.detail-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  document.querySelectorAll('.detail-tab-content').forEach(content => {
+    content.classList.remove('active');
+  });
+
+  const activeTab = document.querySelector(`.detail-tab[data-tab="${currentDetailTab}"]`);
+  const activeContent = document.getElementById(currentDetailTab);
+  if (activeTab) activeTab.classList.add('active');
+  if (activeContent) activeContent.classList.add('active');
+}
 
     async function saveUserChanges() {
       try {
