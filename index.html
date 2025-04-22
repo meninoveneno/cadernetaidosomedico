@@ -323,7 +323,7 @@
     
     #userDetailTabs {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 5px;
       margin-bottom: 20px;
     }
@@ -435,13 +435,69 @@
       background: #4D6057;
     }
     
+    /* Estilos para a aba "Peso" */
+    .other-container {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+    }
+    
+    .other-container h3 {
+      margin-top: 0;
+      color: #4D6057;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+    }
+    
+    .other-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      margin: 5px 0;
+      background-color: white;
+      border-radius: 8px;
+      text-align: left;
+    }
+    
+    .other-item-content {
+      flex-grow: 1;
+    }
+    
+    .other-item-date {
+      font-size: 0.8em;
+      color: #666;
+      margin-top: 5px;
+    }
+    
+    .delete-other-btn {
+      background: #ff4444;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    
+    .add-other-btn {
+      margin-top: 10px;
+      background: #4D6057;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
     @media (max-width: 600px) {
       #userDetailTabs {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
       }
       
       .detail-tab {
-        font-size: 13px;
+        font-size: 12px;
         padding: 8px;
       }
       
@@ -455,6 +511,11 @@
       
       .medical-search {
         width: 90%;
+      }
+      
+      .remember-me {
+        width: 90%;
+        font-size: 14px;
       }
     }
   </style>
@@ -476,6 +537,10 @@
     <h2>Acesso Médico</h2>
     <input type="text" id="medUsername" placeholder="Usuário" class="medical-search">
     <input type="password" id="medPassword" placeholder="Senha" class="medical-search">
+    <div class="remember-me">
+      <input type="checkbox" id="rememberMe">
+      <label for="rememberMe">Quero continuar logado</label>
+    </div>
     <div class="medical-buttons">
       <button id="medLoginBtn" class="btn">Entrar</button>
     </div>
@@ -524,6 +589,7 @@
       <div class="detail-tab" data-tab="detail-medicamentos">Medicamentos</div>
       <div class="detail-tab" data-tab="detail-anotacoes">Anotações</div>
       <div class="detail-tab" data-tab="detail-monitoramento">Monitoramento</div>
+      <div class="detail-tab" data-tab="detail-peso">Peso</div>
     </div>
     
     <div class="scrollable-detail">
@@ -585,16 +651,67 @@
     let isEditing = false;
     let currentUserData = null;
     
+    // Verificar se há credenciais salvas no localStorage
+    function checkSavedCredentials() {
+      const savedUsername = localStorage.getItem('medUsername');
+      const savedPassword = localStorage.getItem('medPassword');
+      
+      if (savedUsername && savedPassword) {
+        document.getElementById('medUsername').value = savedUsername;
+        document.getElementById('medPassword').value = savedPassword;
+        document.getElementById('rememberMe').checked = true;
+      }
+    }
+    
+    // Chamar a função ao carregar a página
+    checkSavedCredentials();
+    
+    // Função melhorada para formatar datas
     function formatDate(dateString) {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+      try {
+        if (!dateString) return 'Data não informada';
+        
+        // Se for um timestamp do Firestore
+        if (dateString.seconds) {
+          const date = new Date(dateString.seconds * 1000);
+          return date.toLocaleDateString('pt-BR');
+        }
+        
+        // Se for uma string no formato ISO (contém 'T')
+        if (dateString.includes('T')) {
+          const date = new Date(dateString);
+          return date.toLocaleDateString('pt-BR');
+        }
+        
+        // Se for uma string no formato ANO-MES-DIA (formato do Firestore)
+        if (dateString.includes('-')) {
+          const [year, month, day] = dateString.split('-');
+          return `${day}/${month}/${year}`;
+        }
+        
+        return dateString; // Retorna original se não reconhecer o formato
+      } catch (e) {
+        console.error('Erro ao formatar data:', e);
+        return 'Data inválida';
+      }
     }
 
     document.getElementById('medLoginBtn').addEventListener('click', () => {
       const username = document.getElementById('medUsername').value;
       const password = document.getElementById('medPassword').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
       
       if(username === 'admin' && password === 'admin123') {
+        // Salvar credenciais se o checkbox estiver marcado
+        if (rememberMe) {
+          localStorage.setItem('medUsername', username);
+          localStorage.setItem('medPassword', password);
+        } else {
+          // Remover credenciais salvas se o checkbox não estiver marcado
+          localStorage.removeItem('medUsername');
+          localStorage.removeItem('medPassword');
+        }
+        
         document.getElementById('medicalLoginScreen').style.display = 'none';
         loadMedicalAccess();
       } else {
@@ -684,185 +801,214 @@
       }
     }
 
-function renderUserDetail(userData) {
-  const detailContent = document.getElementById('userDetailContent');
-  detailContent.innerHTML = `
-    <div class="detail-tab-content" id="detail-identificacao">
-      <div class="compact-form">
-        <div class="form-row">
-          <label>Nome:</label>
-          ${isEditing ? 
-            `<input type="text" class="edit-input" data-field="identificacao.nome" value="${userData.identificacao.nome}">` : 
-            `<span>${userData.identificacao.nome}</span>`}
+    function renderUserDetail(userData) {
+      const detailContent = document.getElementById('userDetailContent');
+      
+      detailContent.innerHTML = `
+        <div class="detail-tab-content active" id="detail-identificacao">
+          <div class="compact-form">
+            <div class="form-row">
+              <label>Nome:</label>
+              ${isEditing ? 
+                `<input type="text" class="edit-input" data-field="identificacao.nome" value="${userData.identificacao.nome}">` : 
+                `<span>${userData.identificacao.nome}</span>`}
+            </div>
+            <div class="form-row">
+              <label>Nascimento:</label>
+              ${isEditing ? 
+                `<input type="date" class="edit-input" data-field="identificacao.dataNascimento" value="${userData.identificacao.dataNascimento}">` : 
+                `<span>${userData.identificacao.dataNascimento}</span>`}
+            </div>
+            <div class="form-row">
+              <label>Contato:</label>
+              ${isEditing ? 
+                `<input type="tel" class="edit-input" data-field="identificacao.contato" value="${userData.identificacao.contato}">` : 
+                `<span>${userData.identificacao.contato}</span>`}
+            </div>
+            <div class="form-row">
+              <label>Contato de Emergência:</label>
+              ${isEditing ? 
+                `<input type="tel" class="edit-input" data-field="identificacao.contatoEmergencia" value="${userData.identificacao.contatoEmergencia || ''}">` : 
+                `<span>${userData.identificacao.contatoEmergencia || 'Não informado'}</span>`}
+            </div>
+            <div class="form-row">
+              <label>Peso:</label>
+              ${isEditing ? 
+                `<input type="number" class="edit-input" data-field="identificacao.peso" value="${userData.identificacao.peso}">` : 
+                `<span>${userData.identificacao.peso}</span>`}
+            </div>
+          </div>
         </div>
-        <div class="form-row">
-          <label>Nascimento:</label>
-          ${isEditing ? 
-            `<input type="date" class="edit-input" data-field="identificacao.dataNascimento" value="${userData.identificacao.dataNascimento}">` : 
-            `<span>${userData.identificacao.dataNascimento}</span>`}
-        </div>
-        <div class="form-row">
-          <label>Contato:</label>
-          ${isEditing ? 
-            `<input type="tel" class="edit-input" data-field="identificacao.contato" value="${userData.identificacao.contato}">` : 
-            `<span>${userData.identificacao.contato}</span>`}
-        </div>
-        <div class="form-row">
-          <label>Contato de Emergência:</label>
-          ${isEditing ? 
-            `<input type="tel" class="edit-input" data-field="identificacao.contatoEmergencia" value="${userData.identificacao.contatoEmergencia || ''}">` : 
-            `<span>${userData.identificacao.contatoEmergencia || 'Não informado'}</span>`}
-        </div>
-        <div class="form-row">
-          <label>Peso:</label>
-          ${isEditing ? 
-            `<input type="number" class="edit-input" data-field="identificacao.peso" value="${userData.identificacao.peso}">` : 
-            `<span>${userData.identificacao.peso}</span>`}
-        </div>
-      </div>
-    </div>
 
-    <div class="detail-tab-content" id="detail-vacinacao">
-      ${userData.vacinacao.map((vacina, index) => `
-        <div class="vacina-form" data-index="${index}">
-          <div class="form-row">
-            <label>Vacina:</label>
-            ${isEditing ? 
-              `<input type="text" class="edit-input" data-field="vacinacao[${index}].nomeVacina" value="${vacina.nomeVacina}">` : 
-              `<span>${vacina.nomeVacina}</span>`}
-          </div>
-          <div class="form-row">
-            <label>Data:</label>
-            ${isEditing ? 
-              `<input type="date" class="edit-input" data-field="vacinacao[${index}].dataAplicacao" value="${vacina.dataAplicacao}">` : 
-              `<span>${vacina.dataAplicacao}</span>`}
-          </div>
-          <div class="form-row">
-            <label>Lote:</label>
-            ${isEditing ? 
-              `<input type="text" class="edit-input" data-field="vacinacao[${index}].loteVacina" value="${vacina.loteVacina}">` : 
-              `<span>${vacina.loteVacina}</span>`}
-          </div>
-          <div class="form-row">
-            <label>Observações:</label>
-            ${isEditing ? 
-              `<textarea class="edit-input" data-field="vacinacao[${index}].observacoes">${vacina.observacoes}</textarea>` : 
-              `<span>${vacina.observacoes}</span>`}
-          </div>
-          ${isEditing ? `<button class="delete-btn" onclick="this.closest('.vacina-form').remove()">Excluir</button>` : ''}
+        <div class="detail-tab-content" id="detail-vacinacao">
+          ${(userData.vacinacao || []).map((vacina, index) => `
+            <div class="vacina-form" data-index="${index}">
+              <div class="form-row">
+                <label>Vacina:</label>
+                ${isEditing ? 
+                  `<input type="text" class="edit-input" data-field="vacinacao[${index}].nomeVacina" value="${vacina.nomeVacina || ''}">` : 
+                  `<span>${vacina.nomeVacina || 'Não informado'}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Data:</label>
+                ${isEditing ? 
+                  `<input type="date" class="edit-input" data-field="vacinacao[${index}].dataAplicacao" value="${vacina.dataAplicacao || ''}">` : 
+                  `<span>${vacina.dataAplicacao ? formatDate(vacina.dataAplicacao) : 'Não informado'}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Lote:</label>
+                ${isEditing ? 
+                  `<input type="text" class="edit-input" data-field="vacinacao[${index}].loteVacina" value="${vacina.loteVacina || ''}">` : 
+                  `<span>${vacina.loteVacina || 'Não informado'}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Observações:</label>
+                ${isEditing ? 
+                  `<textarea class="edit-input" data-field="vacinacao[${index}].observacoes">${vacina.observacoes || ''}</textarea>` : 
+                  `<span>${vacina.observacoes || 'Nenhuma'}</span>`}
+              </div>
+              ${isEditing ? `<button class="delete-btn" onclick="this.closest('.vacina-form').remove()">Excluir</button>` : ''}
+            </div>
+          `).join('')}
+          ${isEditing ? `<button class="btn add-item-btn" onclick="addNewVacina()">+ Nova Vacina</button>` : ''}
         </div>
-      `).join('')}
-      ${isEditing ? `<button class="btn add-item-btn" onclick="addNewVacina()">+ Nova Vacina</button>` : ''}
-    </div>
 
-    <div class="detail-tab-content" id="detail-doencas">
-      <div class="compact-form">
-        <div class="form-row">
-          <label>Hipertensão:</label>
-          <input type="checkbox" ${userData.doencas.hipertensao ? 'checked' : ''} 
-            ${isEditing ? 'data-field="doencas.hipertensao"' : 'disabled'}>
+        <div class="detail-tab-content" id="detail-doencas">
+          <div class="compact-form">
+            <div class="form-row">
+              <label>Hipertensão:</label>
+              <input type="checkbox" ${userData.doencas?.hipertensao ? 'checked' : ''} 
+                ${isEditing ? 'data-field="doencas.hipertensao"' : 'disabled'}>
+            </div>
+            <div class="form-row">
+              <label>Diabetes:</label>
+              <input type="checkbox" ${userData.doencas?.diabetes ? 'checked' : ''} 
+                ${isEditing ? 'data-field="doencas.diabetes"' : 'disabled'}>
+            </div>
+            <div class="form-row">
+              <label>Cardiopatias:</label>
+              <input type="checkbox" ${userData.doencas?.cardiopatias ? 'checked' : ''} 
+                ${isEditing ? 'data-field="doencas.cardiopatias"' : 'disabled'}>
+            </div>
+            <div class="form-row">
+              <label>Chagas:</label>
+              <input type="checkbox" ${userData.doencas?.chagas ? 'checked' : ''} 
+                ${isEditing ? 'data-field="doencas.chagas"' : 'disabled'}>
+            </div>
+            <div class="form-row">
+              <label>Outras:</label>
+              ${isEditing ? 
+                `<input type="text" class="edit-input" data-field="doencas.outras" value="${userData.doencas?.outras || ''}">` : 
+                `<span>${userData.doencas?.outras || 'Nenhuma'}</span>`}
+            </div>
+          </div>
         </div>
-        <div class="form-row">
-          <label>Diabetes:</label>
-          <input type="checkbox" ${userData.doencas.diabetes ? 'checked' : ''} 
-            ${isEditing ? 'data-field="doencas.diabetes"' : 'disabled'}>
-        </div>
-        <div class="form-row">
-          <label>Cardiopatias:</label>
-          <input type="checkbox" ${userData.doencas.cardiopatias ? 'checked' : ''} 
-            ${isEditing ? 'data-field="doencas.cardiopatias"' : 'disabled'}>
-        </div>
-        <div class="form-row">
-          <label>Chagas:</label>
-          <input type="checkbox" ${userData.doencas.chagas ? 'checked' : ''} 
-            ${isEditing ? 'data-field="doencas.chagas"' : 'disabled'}>
-        </div>
-        <div class="form-row">
-          <label>Outras:</label>
-          ${isEditing ? 
-            `<input type="text" class="edit-input" data-field="doencas.outras" value="${userData.doencas.outras || ''}">` : 
-            `<span>${userData.doencas.outras || 'Nenhuma'}</span>`}
-        </div>
-      </div>
-    </div>
 
-    <div class="detail-tab-content" id="detail-medicamentos">
-      ${userData.medicamentos.map((med, index) => `
-        <div class="medicamento-form" data-index="${index}">
+        <div class="detail-tab-content" id="detail-medicamentos">
+          ${(userData.medicamentos || []).map((med, index) => `
+            <div class="medicamento-form" data-index="${index}">
+              <div class="form-row">
+                <label>Medicamento:</label>
+                ${isEditing ? 
+                  `<input type="text" class="edit-input" data-field="medicamentos[${index}].nome" value="${med.nome || ''}">` : 
+                  `<span>${med.nome || 'Não informado'}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Dose:</label>
+                ${isEditing ? 
+                  `<input type="text" class="edit-input" data-field="medicamentos[${index}].dose" value="${med.dose || ''}">` : 
+                  `<span>${med.dose || 'Não informado'}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Posologia:</label>
+                ${isEditing ? 
+                  `<input type="text" class="edit-input" data-field="medicamentos[${index}].posologia" value="${med.posologia || ''}">` : 
+                  `<span>${med.posologia || 'Não informado'}</span>`}
+              </div>
+              <div class="form-row">
+                <label>Horário:</label>
+                ${isEditing ? 
+                  `<input type="time" class="edit-input" data-field="medicamentos[${index}].horario" value="${med.horario || ''}">` : 
+                  `<span>${med.horario || 'Não informado'}</span>`}
+              </div>
+              ${isEditing ? `<button class="delete-btn" onclick="this.closest('.medicamento-form').remove()">Excluir</button>` : ''}
+            </div>
+          `).join('')}
+          ${isEditing ? `<button class="btn add-item-btn" onclick="addNewMedicamento()">+ Novo Medicamento</button>` : ''}
+        </div>
+
+        <div class="detail-tab-content" id="detail-anotacoes">
           <div class="form-row">
-            <label>Medicamento:</label>
             ${isEditing ? 
-              `<input type="text" class="edit-input" data-field="medicamentos[${index}].nome" value="${med.nome}">` : 
-              `<span>${med.nome}</span>`}
+              `<textarea class="edit-input" data-field="anotacoes">${userData.anotacoes || ''}</textarea>` : 
+              `<span>${userData.anotacoes || 'Nenhuma anotação'}</span>`}
           </div>
-          <div class="form-row">
-            <label>Dose:</label>
-            ${isEditing ? 
-              `<input type="text" class="edit-input" data-field="medicamentos[${index}].dose" value="${med.dose}">` : 
-              `<span>${med.dose}</span>`}
-          </div>
-          <div class="form-row">
-            <label>Posologia:</label>
-            ${isEditing ? 
-              `<input type="text" class="edit-input" data-field="medicamentos[${index}].posologia" value="${med.posologia}">` : 
-              `<span>${med.posologia}</span>`}
-          </div>
-          <div class="form-row">
-            <label>Horário:</label>
-            ${isEditing ? 
-              `<input type="time" class="edit-input" data-field="medicamentos[${index}].horario" value="${med.horario}">` : 
-              `<span>${med.horario}</span>`}
-          </div>
-          ${isEditing ? `<button class="delete-btn" onclick="this.closest('.medicamento-form').remove()">Excluir</button>` : ''}
         </div>
-      `).join('')}
-      ${isEditing ? `<button class="btn add-item-btn" onclick="addNewMedicamento()">+ Novo Medicamento</button>` : ''}
-    </div>
 
-    <div class="detail-tab-content" id="detail-anotacoes">
-      <div class="form-row">
-        ${isEditing ? 
-          `<textarea class="edit-input" data-field="anotacoes">${userData.anotacoes || ''}</textarea>` : 
-          `<span>${userData.anotacoes || 'Nenhuma anotação'}</span>`}
-      </div>
-    </div>
-
-    <div class="detail-tab-content" id="detail-monitoramento">
-      ${(userData.monitoramento || []).map((entry, index) => `
-        <div class="monitoramento-item">
-          <div>
-            <strong>PA:</strong> ${entry.pa}<br>
-            <strong>Glicemia:</strong> ${entry.glicemia}<br>
-            <em>${new Date(entry.timestamp).toLocaleString()}</em>
-          </div>
-          <button class="delete-monitoramento-btn" onclick="deleteMonitoramentoEntry('${currentEditingUser}', '${entry.timestamp}')">
-            Excluir
-          </button>
+        <div class="detail-tab-content" id="detail-monitoramento">
+          ${(userData.monitoramento || []).map((entry, index) => `
+            <div class="monitoramento-item">
+              <div>
+                <strong>PA:</strong> ${entry.pa || 'Não informado'}<br>
+                <strong>Glicemia:</strong> ${entry.glicemia || 'Não informado'}<br>
+                <em>${entry.timestamp ? formatDate(entry.timestamp) : 'Data não informada'}</em>
+              </div>
+              <button class="delete-monitoramento-btn" onclick="deleteMonitoramentoEntry('${currentEditingUser}', '${entry.timestamp}')">
+                Excluir
+              </button>
+            </div>
+          `).join('')}
         </div>
-      `).join('')}
-    </div>
-  `;
 
-  document.querySelectorAll('.detail-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
-      tab.classList.add('active');
-      const targetTab = tab.dataset.tab;
-      document.getElementById(targetTab).classList.add('active');
-      currentDetailTab = targetTab;
-    });
-  });
+        <div class="detail-tab-content" id="detail-peso">
+          <div class="other-container">
+            <h3>Registros de Peso</h3>
+            ${(userData.weightRecords || []).map((record, index) => {
+              const recordDate = record.date ? formatDate(record.date) : 'Data não informada';
+              
+              return `
+                <div class="other-item">
+                  <div class="other-item-content">
+                    <div>${record.weight || '0'} kg</div>
+                    <div class="other-item-date">${recordDate}</div>
+                  </div>
+                  ${isEditing ? `
+                    <button class="delete-other-btn" onclick="deleteOtherEntry('weightRecords', ${JSON.stringify(record.date)})">
+                      Excluir
+                    </button>
+                  ` : ''}
+                </div>
+              `;
+            }).join('')}
+            ${isEditing ? `
+              <button class="add-other-btn" onclick="addNewOtherEntry('weightRecords')">
+                + Adicionar Peso
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
 
-  // Mantém a aba ativa mesmo durante a edição
-  if (currentDetailTab) {
-    const activeTab = document.querySelector(`.detail-tab[data-tab="${currentDetailTab}"]`);
-    if (activeTab) {
-      activeTab.classList.add('active');
-      document.getElementById(currentDetailTab).classList.add('active');
+      document.querySelectorAll('.detail-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
+          tab.classList.add('active');
+          const targetTab = tab.dataset.tab;
+          document.getElementById(targetTab).classList.add('active');
+          currentDetailTab = targetTab;
+        });
+      });
+
+      // Mantém a aba ativa mesmo durante a edição
+      if (currentDetailTab) {
+        const activeTab = document.querySelector(`.detail-tab[data-tab="${currentDetailTab}"]`);
+        if (activeTab) {
+          activeTab.classList.add('active');
+          document.getElementById(currentDetailTab).classList.add('active');
+        }
+      }
     }
-  }
-}
 
     function addNewMedicamento() {
       const container = document.querySelector('#detail-medicamentos');
@@ -924,7 +1070,16 @@ function renderUserDetail(userData) {
       isEditing = !isEditing;
       document.getElementById('editUserBtn').style.display = isEditing ? 'none' : 'block';
       document.getElementById('saveUserBtn').style.display = isEditing ? 'block' : 'none';
-      renderUserDetail(currentUserData);
+      
+      // Mantém a aba atual ativa ao entrar no modo de edição
+      const activeTab = document.querySelector(`.detail-tab[data-tab="${currentDetailTab}"]`);
+      if (activeTab) {
+        renderUserDetail(currentUserData);
+        activeTab.classList.add('active');
+        document.getElementById(currentDetailTab).classList.add('active');
+      } else {
+        renderUserDetail(currentUserData);
+      }
     }
 
     async function saveUserChanges() {
@@ -1017,6 +1172,10 @@ function renderUserDetail(userData) {
         medicalAccessUnsubscribe();
         medicalAccessUnsubscribe = null;
       }
+      // Limpar credenciais salvas ao fazer logout
+      localStorage.removeItem('medUsername');
+      localStorage.removeItem('medPassword');
+      
       document.getElementById('medicalAccessScreen').style.display = 'none';
       document.getElementById('medicalLoginScreen').style.display = 'block';
     });
@@ -1074,6 +1233,101 @@ function renderUserDetail(userData) {
       } catch (error) {
         console.error('Erro ao excluir registro de monitoramento:', error);
         showPopup('Erro ao excluir registro de monitoramento!', true);
+      }
+    }
+
+    async function deleteOtherEntry(field, date) {
+      if(confirm('Tem certeza que deseja excluir este registro?')) {
+        try {
+          const userRef = db.collection('usuarios').doc(currentEditingUser);
+          const userDoc = await userRef.get();
+          const currentData = userDoc.data()[field] || [];
+          
+          // Comparação de datas considerando tanto string quanto timestamp
+          const updatedData = currentData.filter(item => {
+            if (item.date && item.date.seconds && date.seconds) {
+              return item.date.seconds !== date.seconds;
+            } else if (typeof item.date === 'string' && typeof date === 'string') {
+              return item.date !== date;
+            }
+            return true;
+          });
+
+          await userRef.update({ [field]: updatedData });
+          showPopup('Registro excluído com sucesso!');
+          if (document.getElementById('userDetailScreen').style.display === 'block') {
+            renderUserDetail({ ...userDoc.data(), [field]: updatedData });
+          }
+        } catch (error) {
+          console.error(`Erro ao excluir registro de ${field}:`, error);
+          showPopup('Erro ao excluir registro!', true);
+        }
+      }
+    }
+
+    function addNewOtherEntry(field) {
+      let newEntry = {};
+      let promptMessage = '';
+      let defaultValue = '';
+
+      if (field === 'weightRecords') {
+        promptMessage = 'Digite o peso (em kg):';
+        defaultValue = '70';
+      }
+
+      const userInput = prompt(promptMessage, defaultValue);
+      if (!userInput) return;
+
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = prompt('Digite a data (formato YYYY-MM-DD):', today);
+      if (!dateInput) return;
+
+      if (field === 'weightRecords') {
+        newEntry = {
+          weight: userInput,
+          date: dateInput
+        };
+      }
+
+      saveOtherEntry(field, newEntry);
+    }
+
+    async function saveOtherEntry(field, newEntry) {
+      try {
+        const userRef = db.collection('usuarios').doc(currentEditingUser);
+        const userDoc = await userRef.get();
+        const currentData = userDoc.data()[field] || [];
+        
+        // Verifica se já existe um registro com a mesma data
+        const existingIndex = currentData.findIndex(item => {
+          if (item.date && item.date.seconds && newEntry.date.seconds) {
+            return item.date.seconds === newEntry.date.seconds;
+          } else if (typeof item.date === 'string' && typeof newEntry.date === 'string') {
+            return item.date === newEntry.date;
+          }
+          return false;
+        });
+        
+        let updatedData;
+        
+        if (existingIndex >= 0) {
+          // Atualiza o registro existente
+          updatedData = [...currentData];
+          updatedData[existingIndex] = newEntry;
+        } else {
+          // Adiciona novo registro
+          updatedData = [...currentData, newEntry];
+        }
+
+        await userRef.update({ [field]: updatedData });
+        showPopup('Registro salvo com sucesso!');
+        
+        // Atualiza a exibição
+        const updatedDoc = await userRef.get();
+        renderUserDetail(updatedDoc.data());
+      } catch (error) {
+        console.error(`Erro ao salvar registro em ${field}:`, error);
+        showPopup('Erro ao salvar registro!', true);
       }
     }
 
